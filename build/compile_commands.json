@@ -1,0 +1,14 @@
+[
+{
+  "directory": "E:/dev/Euler/build",
+  "command": "C:\\PROGRA~1\\WINLIB~1.0\\WINLIB~1.0-R\\mingw64\\bin\\C__~1.EXE -DEULER_BUILD_DBG -DEULER_LIB_STATIC @CMakeFiles/euler.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\euler.dir\\src\\common\\common.cpp.obj -c E:\\dev\\Euler\\src\\common\\common.cpp",
+  "file": "E:/dev/Euler/src/common/common.cpp",
+  "output": "CMakeFiles/euler.dir/src/common/common.cpp.obj"
+},
+{
+  "directory": "E:/dev/Euler/build",
+  "command": "C:\\PROGRA~1\\WINLIB~1.0\\WINLIB~1.0-R\\mingw64\\bin\\C__~1.EXE -DEULER_BUILD_DBG @CMakeFiles/test1.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\test1.dir\\test\\1\\main.cpp.obj -c E:\\dev\\Euler\\test\\1\\main.cpp",
+  "file": "E:/dev/Euler/test/1/main.cpp",
+  "output": "CMakeFiles/test1.dir/test/1/main.cpp.obj"
+}
+]

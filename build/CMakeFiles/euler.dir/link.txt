@@ -1,0 +1,2 @@
+C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\ar.exe qc E:\dev\Euler\bin\libeuler.a CMakeFiles/euler.dir/src/common/common.cpp.obj
+C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\ranlib.exe E:\dev\Euler\bin\libeuler.a

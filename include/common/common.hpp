@@ -6,41 +6,6 @@
 namespace euler
 {
 
-    // nan
-    template <Floating T>
-    constexpr inline T nan_v = std::numeric_limits<T>::quiet_NaN();
-
-    // float to int
-    template <typename T>
-    struct float_to_int;
-
-    template <>
-    struct float_to_int<f32>
-    {
-        using type = i32;
-    };
-
-    template <>
-    struct float_to_int<f64>
-    {
-        using type = i64;
-    };
-
-    template <>
-    struct float_to_int<long double>
-    {
-        using type =
-#if defined(__SIZEOF_INT128__)
-            __int128_t
-#else
-            void
-#endif
-            ;
-    };
-
-    template <Floating T>
-    using float_to_int_t = typename float_to_int<T>::type;
-
     // constants
     template <Numeric T>
     struct constants
@@ -102,6 +67,15 @@ namespace euler
         return max<T>(minm, min<T>(maxm, x));
     }
 
+    // TODO :Rounding
+
+    // frac
+    template <Floating T>
+    constexpr inline T frac(T x) noexcept
+    {
+        return x - floor(x);
+    }
+
     // floor
     template <Floating T>
     constexpr inline float_to_int_t<T> floor(T x) noexcept
@@ -149,6 +123,12 @@ namespace euler
     constexpr inline T safe_div(T x, T y, T fallback = constants<T>::zero) noexcept
     {
         return y == constants<T>::zero ? fallback : x / y;
+    }
+
+    template <Numeric T>
+    constexpr inline to_floating_t<T> safe_inv(T x, T fallback = constants<T>::zero) noexcept
+    {
+        return x == constants<T>::zero ? fallback : 1 / x;
     }
 
     // epsilon equals

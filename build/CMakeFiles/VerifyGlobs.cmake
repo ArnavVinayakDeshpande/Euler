@@ -5,6 +5,8 @@ cmake_policy(SET CMP0009 NEW)
 # EULER_INC_FILES at CMakeLists.txt:18 (file)
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "E:/dev/Euler/include//*.hpp")
 set(OLD_GLOB
+  "E:/dev/Euler/include//common/common.hpp"
+  "E:/dev/Euler/include//core.hpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -15,6 +17,7 @@ endif()
 file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "E:/dev/Euler/src//*.cpp")
 set(OLD_GLOB
   "E:/dev/Euler/src//common/common.cpp"
+  "E:/dev/Euler/src//core.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")

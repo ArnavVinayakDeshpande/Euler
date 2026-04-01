@@ -130,17 +130,17 @@ euler/fast:
 .PHONY : euler/fast
 
 #=============================================================================
-# Target rules for targets named test1
+# Target rules for targets named test_common
 
 # Build rule for target.
-test1: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test1
-.PHONY : test1
+test_common: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_common
+.PHONY : test_common
 
 # fast build rule for target.
-test1/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\test1.dir\build.make CMakeFiles/test1.dir/build
-.PHONY : test1/fast
+test_common/fast:
+	$(MAKE) $(MAKESILENT) -f tests\CMakeFiles\test_common.dir\build.make tests/CMakeFiles/test_common.dir/build
+.PHONY : test_common/fast
 
 src/common/common.obj: src/common/common.cpp.obj
 .PHONY : src/common/common.obj
@@ -166,29 +166,29 @@ src/common/common.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/common/common.cpp.s
 .PHONY : src/common/common.cpp.s
 
-test/1/main.obj: test/1/main.cpp.obj
-.PHONY : test/1/main.obj
+src/core.obj: src/core.cpp.obj
+.PHONY : src/core.obj
 
 # target to build an object file
-test/1/main.cpp.obj:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\test1.dir\build.make CMakeFiles/test1.dir/test/1/main.cpp.obj
-.PHONY : test/1/main.cpp.obj
+src/core.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/core.cpp.obj
+.PHONY : src/core.cpp.obj
 
-test/1/main.i: test/1/main.cpp.i
-.PHONY : test/1/main.i
+src/core.i: src/core.cpp.i
+.PHONY : src/core.i
 
 # target to preprocess a source file
-test/1/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\test1.dir\build.make CMakeFiles/test1.dir/test/1/main.cpp.i
-.PHONY : test/1/main.cpp.i
+src/core.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/core.cpp.i
+.PHONY : src/core.cpp.i
 
-test/1/main.s: test/1/main.cpp.s
-.PHONY : test/1/main.s
+src/core.s: src/core.cpp.s
+.PHONY : src/core.s
 
 # target to generate assembly for a file
-test/1/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\test1.dir\build.make CMakeFiles/test1.dir/test/1/main.cpp.s
-.PHONY : test/1/main.cpp.s
+src/core.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/core.cpp.s
+.PHONY : src/core.cpp.s
 
 # Help Target
 help:
@@ -199,13 +199,13 @@ help:
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... euler
-	@echo ... test1
+	@echo ... test_common
 	@echo ... src/common/common.obj
 	@echo ... src/common/common.i
 	@echo ... src/common/common.s
-	@echo ... test/1/main.obj
-	@echo ... test/1/main.i
-	@echo ... test/1/main.s
+	@echo ... src/core.obj
+	@echo ... src/core.i
+	@echo ... src/core.s
 .PHONY : help
 
 

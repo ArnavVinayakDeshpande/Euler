@@ -7,8 +7,14 @@
 },
 {
   "directory": "E:/dev/Euler/build",
-  "command": "C:\\PROGRA~1\\WINLIB~1.0\\WINLIB~1.0-R\\mingw64\\bin\\C__~1.EXE -DEULER_BUILD_DBG @CMakeFiles/test1.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\test1.dir\\test\\1\\main.cpp.obj -c E:\\dev\\Euler\\test\\1\\main.cpp",
-  "file": "E:/dev/Euler/test/1/main.cpp",
-  "output": "CMakeFiles/test1.dir/test/1/main.cpp.obj"
+  "command": "C:\\PROGRA~1\\WINLIB~1.0\\WINLIB~1.0-R\\mingw64\\bin\\C__~1.EXE -DEULER_BUILD_DBG -DEULER_LIB_STATIC @CMakeFiles/euler.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\euler.dir\\src\\core.cpp.obj -c E:\\dev\\Euler\\src\\core.cpp",
+  "file": "E:/dev/Euler/src/core.cpp",
+  "output": "CMakeFiles/euler.dir/src/core.cpp.obj"
+},
+{
+  "directory": "E:/dev/Euler/build/tests",
+  "command": "C:\\PROGRA~1\\WINLIB~1.0\\WINLIB~1.0-R\\mingw64\\bin\\C__~1.EXE -DEULER_BUILD_DBG @CMakeFiles/test_common.dir/includes_CXX.rsp -g -std=gnu++20 -o CMakeFiles\\test_common.dir\\common\\main.cpp.obj -c E:\\dev\\Euler\\tests\\common\\main.cpp",
+  "file": "E:/dev/Euler/tests/common/main.cpp",
+  "output": "tests/CMakeFiles/test_common.dir/common/main.cpp.obj"
 }
 ]

@@ -8,4 +8,7 @@ namespace euler
     {
     };
 
+
+    
+
 }

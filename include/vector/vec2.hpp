@@ -282,4 +282,154 @@ namespace euler
                         static_cast<to_floating_t<T>>(v.y)));
     }
 
+    template <Numeric T>
+    constexpr inline vec2<T> add(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return (a.x + b.x, a.y + b.y);
+    }
+
+    template <Numeric T>
+    constexpr inline vec2<T> sub(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return (a.x - b.x, a.y - b.y);
+    }
+
+    template <Numeric T>
+    constexpr inline vec2<T> mult(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return (a.x * b.x, a.y * a.y);
+    }
+
+    template <Numeric T>
+    constexpr inline T dot(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return a.x * b.x + a.y * b.y;
+    }
+
+    template <Numeric T>
+    constexpr inline T cross(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return a.x * b.y - a.y * b.x;
+    }
+
+    template <Numeric T>
+    inline to_floating_t<T> distance(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        to_floating_t<T>
+            dist_x = a.x - b.x,
+            dist_y = a.y - b.y;
+        return std::sqrt(dist_x * dist_x + dist_y * dist_y);
+    }
+
+    template <Numeric T>
+    constexpr inline to_floating_t<T> distance_sq(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        to_floating_t<T>
+            dist_x = a.x - b.x,
+            dist_y = a.y - b.y;
+        return dist_x * dist_x + dist_y * dist_y;
+    }
+
+    template <Numeric T>
+    constexpr inline to_floating_t<T> angle_bw(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return
+            std::acos(
+                safe_div(dot(a, b), length(a) * length(b)));
+    }
+
+    template <Numeric T>
+    inline to_floating_t<T> cos_anglw_bw(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return 
+            safe_div(dot(a, b), length(a) * length(b));
+    }
+
+    template <Numeric T>
+    constexpr inline bool equal(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return
+            a.x == b.x &&
+            a.y == b.y;
+    }
+
+    template <Numeric T>
+    constexpr inline bool equal_epsilon(const vec2<T> &a, const vec2<T> &b, T eps = constants<T>::epsilon) noexcept
+    {
+        return 
+            equal_epsilon(a.x, b.x, eps) &&
+            equal_epsilon(a.y, b.y, eps);
+    }
+
+    template <Numeric T>
+    inline vec2<to_floating_t<T>> project(const vec2<T> &of, const vec2<T> &on) noexcept
+    {
+        auto multiplier = safe_div(dot(of, on), dot(on, on));
+
+        return
+            (
+                static_cast<to_floating_t<T>>(on.x) * multiplier,
+                static_cast<to_floating_t<T>>(on.y) * multiplier);
+    }
+
+    template <Numeric T>
+    inline to_floating_t<T> projection_length(const vec2<T> &of, const vec2<T> &on) noexcept
+    {
+        return length(project(of, on));
+    }
+
+    template <Numeric T>
+    inline vec2<to_floating_t<T>> reject(const vec2<T> &of, const vec2<T> &on) noexcept
+    {
+        return sub(of, project(of, on));
+    }
+
+    template <Numeric T>
+    inline vec2<to_floating_t<T>> reject_length(const vec2<T> &of, const vec2<T> &on) noexcept
+    {
+        return length(reject(of, on));
+    }
+
+    template <Floating T>
+    constexpr inline vec2<T> lerp(const vec2<T> &a, const vec2<T> &b, T t) noexcept
+    {
+        return (lerp(a.x, b.x, t), lerp(a.y, b.y, t));
+    }
+
+    template <Floating T >
+    constexpr inline vec2<T> lerp(const vec2<T> &a, const vec2<T> &b, const vec2<T> &t) noexcept
+    {
+        return (lerp(a.x, b.x, t.x), lerp(a.y, b.y, t.y));
+    }
+
+    template <Floating T>
+    constexpr inline vec2<T> nlerp(const vec2<T> &a, const vec2<T> &b, T t) noexcept
+    {
+        return normalize(lerp(a, b, t));
+    }
+
+    template <Floating T>
+    constexpr inline vec2<T> nlerp(const vec2<T> &a, const vec2<T> &b, const vec2<T> &t) noexcept
+    {
+        return normalize(lerp(a, b, t));
+    }
+
+    template <Numeric T>
+    constexpr inline vec2<T> max(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return (max(a.x, b.x), max(a.y, b.y));
+    }
+
+    template <Numeric T>
+    constexpr inline vec2<T> min(const vec2<T> &a, const vec2<T> &b) noexcept
+    {
+        return (min(a.x, b.x), min(a.y, b.y));
+    }
+
+    template <Numeric T>
+    constexpr inline vec2<T> clamp(const vec2<T> &v, const vec2<T> &min, const vec2<T> &max) noexcept
+    {
+        return (clamp(v.x, min.x, max.x), clamp(v.y, min.y, max.y));
+    }
+
 }

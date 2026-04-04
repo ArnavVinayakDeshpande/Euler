@@ -27,3 +27,5 @@
 #endif
 
 #define EULER_ENSURE_BOOL(x)    (!!(x))
+
+#define EULER_MUST_BE_IMPLEMENTED(msg)  static_assert(false, msg)

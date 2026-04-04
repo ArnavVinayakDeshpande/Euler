@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core.hpp"
+#include "macros.hpp"
 #include <limits>
 
 namespace euler
@@ -47,27 +48,75 @@ namespace euler
     };
 
     // max
-    template <Numeric T>
-    constexpr inline T max(T x, T y) noexcept
+    template <Numeric First, Numeric ...Rest>
+    constexpr inline auto max(First first, Rest ...rest) noexcept
+        -> std::common_type_t<First, Rest...>
     {
-        return x > y ? x : y;
+        static_assert(
+                sizeof...(Rest) > 0,
+                "TODO");
+
+        using type = std::common_type_t<First, Rest...>;
+
+        type result = static_cast<type>(first);
+
+        constexpr auto max_fn =
+            [](const type &a, const type &b) -> type
+            {
+                return a > b ? a : b;
+            };
+
+        ((result = max_fn(result, static_cast<type>(rest))), ...);
+       
+        return result;
     }
 
     // min
-    template <Numeric T>
-    constexpr inline T min(T x, T y) noexcept
+    template <Numeric First, Numeric ...Rest>
+    constexpr inline auto min(First first, Rest ...rest) noexcept
+        -> std::common_type_t<First, Rest...>
     {
-        return x < y ? x : y;
+        static_assert(
+                sizeof...(Rest) > 0,
+                "TODO");
+
+        using type = std::common_type_t<First, Rest...>;
+
+        type result = static_cast<type>(first);
+
+        constexpr auto min_fn =
+            [](const type &a, const type &b) -> type
+            {
+                return a < b ? a : b;
+            };
+
+        ((result = min_fn(result, static_cast<type>(rest))), ...);
+       
+        return result;
     }
 
     // clamp
-    template <Numeric T>
-    constexpr inline T clamp(T x, T minm, T maxm) noexcept
+    template <Numeric X, Numeric Min, Numeric Max>
+    constexpr inline auto clamp(X x, Min mn, Max mx) noexcept
+        -> std::common_type_t<X, Min,  Max>
     {
-        return max<T>(minm, min<T>(maxm, x));
+        using type = std::common_type_t<X, Min, Max>;
+
+        return
+            max(
+                    static_cast<type>(mn),
+                    min(
+                        static_cast<type>(mx),
+                        static_cast<type>(x)));
     }
 
     // TODO :Rounding
+    template <Floating T>
+    constexpr inline auto round_off(T x, ssize pow)
+        -> float_to_int<T>
+     {
+        EULER_MUST_BE_IMPLEMENTED("round_off");
+     }
 
     // frac
     template <Floating T>
@@ -168,6 +217,32 @@ namespace euler
     constexpr inline T rad_to_deg(T rad)
     {
         return rad * (constants<T>::rad_to_deg);
+    }
+
+    template <Numeric T>
+    constexpr inline T sqr(T x)
+    {
+        return x * x;
+    }
+
+    template <Numeric T>
+    constexpr inline T cube(T x)
+    {
+        return x * x * x;
+    }
+
+    template <Numeric T>
+    constexpr inline T pow(T x, size p)
+    {
+        if (p == 0)
+            return T(1);
+
+        T result = T(1);
+
+        for (size i = 1; i <= p; ++i)
+            result *= x;
+
+        return result;
     }
 
 }

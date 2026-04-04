@@ -130,4 +130,25 @@ namespace euler
     template <Numeric T>
     using to_floating_t = std::conditional_t<Floating<T>, T, int_to_float<T>>;
 
+    template <typename A, typename B>
+    using larger_t = std::conditional_t<sizeof(A) >= sizeof(B), A, B>;
+
+    template <typename T, typename U>
+    struct promote_to_float
+    {
+    private:
+        using bigger = larger_t<T, U>;
+
+    public:
+        using type =
+            typename std::conditional_t<
+                Floating<T> || Floating<U>,
+                to_floating_t<bigger>,
+                bigger>;
+
+    };
+
+    template <typename T, typename U>
+    using promote_to_float_t = typename promote_to_float<T, U>::type;
+
 }

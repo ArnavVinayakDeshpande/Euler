@@ -7,6 +7,9 @@ file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "E:/dev/Euler/include//*.hpp")
 set(OLD_GLOB
   "E:/dev/Euler/include//common/common.hpp"
   "E:/dev/Euler/include//core.hpp"
+  "E:/dev/Euler/include//macros.hpp"
+  "E:/dev/Euler/include//vector/vec.hpp"
+  "E:/dev/Euler/include//vector/vec2.hpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")
@@ -18,6 +21,7 @@ file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "E:/dev/Euler/src//*.cpp")
 set(OLD_GLOB
   "E:/dev/Euler/src//common/common.cpp"
   "E:/dev/Euler/src//core.cpp"
+  "E:/dev/Euler/src//vector/vec2.cpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")

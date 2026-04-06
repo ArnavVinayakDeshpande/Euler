@@ -1,0 +1,2 @@
+1. Change max, min to be multiple component + with different components
+2. Add Vector concept 

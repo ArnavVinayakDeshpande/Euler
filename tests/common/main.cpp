@@ -52,10 +52,10 @@ int main()
     print_result("safe_div zero", safe_div(10, 0) == 0);
 
     // -----------------------
-    // epsilon_equal / is_zero
+    // equal_epsilon / is_zero
     // -----------------------
-    print_result("epsilon_equal true",
-        epsilon_equal(0.1 + 0.2, 0.3, 1e-6));
+    print_result("equal_epsilon true",
+        equal_epsilon(0.1 + 0.2, 0.3, 1e-6));
 
     print_result("is_zero true",
         is_zero(1e-8, 1e-6));
@@ -64,25 +64,25 @@ int main()
     // lerp / inverse_lerp
     // -----------------------
     print_result("lerp",
-        epsilon_equal(lerp(0.0, 10.0, 0.5), 5.0, 1e-6));
+        equal_epsilon(lerp(0.0, 10.0, 0.5), 5.0, 1e-6));
 
     print_result("inverse_lerp",
-        epsilon_equal(inverse_lerp(0.0, 10.0, 5.0), 0.5, 1e-6));
+        equal_epsilon(inverse_lerp(0.0, 10.0, 5.0), 0.5, 1e-6));
 
     // -----------------------
     // deg <-> rad
     // -----------------------
     print_result("deg_to_rad",
-        epsilon_equal(deg_to_rad(180.0), constants<double>::pi, 1e-6));
+        equal_epsilon(deg_to_rad(180.0), constants<double>::pi, 1e-6));
 
     print_result("rad_to_deg",
-        epsilon_equal(rad_to_deg(constants<double>::pi), 180.0, 1e-6));
+        equal_epsilon(rad_to_deg(constants<double>::pi), 180.0, 1e-6));
 
     // -----------------------
     // constants
     // -----------------------
     print_result("pi constant",
-        epsilon_equal(constants<double>::pi, 3.141592653589793, 1e-12));
+        equal_epsilon(constants<double>::pi, 3.141592653589793, 1e-12));
 
     print_result("epsilon constant",
         constants<float>::epsilon > 0);

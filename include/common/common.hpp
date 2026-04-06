@@ -6,41 +6,6 @@
 namespace euler
 {
 
-    // nan
-    template <Floating T>
-    constexpr inline T nan_v = std::numeric_limits<T>::quiet_NaN();
-
-    // float to int
-    template <typename T>
-    struct float_to_int;
-
-    template <>
-    struct float_to_int<f32>
-    {
-        using type = i32;
-    };
-
-    template <>
-    struct float_to_int<f64>
-    {
-        using type = i64;
-    };
-
-    template <>
-    struct float_to_int<long double>
-    {
-        using type =
-#if defined(__SIZEOF_INT128__)
-            __int128_t
-#else
-            void
-#endif
-            ;
-    };
-
-    template <Floating T>
-    using float_to_int_t = typename float_to_int<T>::type;
-
     // constants
     template <Numeric T>
     struct constants
@@ -81,50 +46,158 @@ namespace euler
         static constexpr T large   = static_cast<T>(1e6);
     };
 
-    // max
     template <Numeric T>
-    constexpr inline T max(T x, T y) noexcept
+    constexpr inline T sqr(T x)
     {
-        return x > y ? x : y;
+        return x * x;
+    }
+
+    template <Numeric T>
+    constexpr inline T cube(T x)
+    {
+        return x * x * x;
+    }
+
+    // TODO: Add power
+    /*template <Numeric T>*/
+    /*constexpr inline T pow(T x, i32 p)*/
+    /*{*/
+    /*    if (p == 0)*/
+    /*    {*/
+    /*        if (x == 0)*/
+    /*            return constants<T>:""*/
+    /*        return T(1);*/
+    /*    }*/
+    /*}*/
+
+    // max
+    template <Numeric First, Numeric ...Rest>
+        requires(sizeof...(Rest) > 0)
+    constexpr inline auto max(First first, Rest ...rest) noexcept
+        -> std::common_type_t<First, Rest...>
+    {
+        using type = std::common_type_t<First, Rest...>;
+
+        type result = static_cast<type>(first);
+
+        constexpr auto max_fn =
+            [](const type &a, const type &b) -> type
+            {
+                return a > b ? a : b;
+            };
+
+        ((result = max_fn(result, static_cast<type>(rest))), ...);
+       
+        return result;
     }
 
     // min
-    template <Numeric T>
-    constexpr inline T min(T x, T y) noexcept
+    template <Numeric First, Numeric ...Rest>
+        requires(sizeof...(Rest) > 0)
+    constexpr inline auto min(First first, Rest ...rest) noexcept
+        -> std::common_type_t<First, Rest...>
     {
-        return x < y ? x : y;
+        using type = std::common_type_t<First, Rest...>;
+
+        type result = static_cast<type>(first);
+
+        constexpr auto min_fn =
+            [](const type &a, const type &b) -> type
+            {
+                return a < b ? a : b;
+            };
+
+        ((result = min_fn(result, static_cast<type>(rest))), ...);
+       
+        return result;
     }
 
     // clamp
-    template <Numeric T>
-    constexpr inline T clamp(T x, T minm, T maxm) noexcept
+    template <Numeric X, Numeric Min, Numeric Max>
+    constexpr inline auto clamp(X x, Min mn, Max mx) noexcept
+        -> std::common_type_t<X, Min,  Max>
     {
-        return max<T>(minm, min<T>(maxm, x));
+        using type = std::common_type_t<X, Min, Max>;
+
+        return
+            max(
+                    static_cast<type>(mn),
+                    min(
+                        static_cast<type>(mx),
+                        static_cast<type>(x)));
+    }
+
+    template <Floating T>
+    constexpr inline T roundoff(T x, i32 pow)
+    {
+        T factor = T(1);
+
+        if (pow > 0)
+        {
+            for (ssize i = 0; i < pow; ++i)
+                factor *= T(10);
+
+            // shift right
+            T scaled = x / factor;
+
+            T rounded =
+                (scaled >= T(0))
+                    ? floor(scaled + T(0.5))
+                    : ceil(scaled - T(0.5));
+
+            return rounded * factor;
+        }
+        else
+        {
+            for (ssize i = 0; i < -pow; ++i)
+                factor *= T(10);
+
+            // shift left
+            T scaled = x * factor;
+
+            T rounded =
+                (scaled >= T(0)) ? 
+                    floor(scaled + T(0.5)) : ceil(scaled - T(0.5));
+
+            return rounded / factor;
+        }
+    }
+
+    // frac
+    template <Floating T>
+    constexpr inline T frac(T x) noexcept
+    {
+        return x - floor(x);
     }
 
     // floor
     template <Floating T>
-    constexpr inline float_to_int_t<T> floor(T x) noexcept
-    {
-        if (x < constants<T>::zero)
-            return static_cast<float_to_int_t<T>>(x) - float_to_int_t<T>(1);
-        else
-            return static_cast<float_to_int_t<T>>(x);
-    }
-
-    // ceil
-    template <Floating T>
-    constexpr inline float_to_int_t<T> ceil(T x) noexcept
+    constexpr inline T floor(T x) noexcept
     {
         float_to_int_t<T> i = static_cast<float_to_int_t<T>>(x);
 
         if (x == i)
-            return i;
+            return x;
 
         if (x < constants<T>::zero)
-            return i;
+            return to_floating_t<T>(i) - T(1);
         else
-            return i + float_to_int_t<T>(1);
+            return to_floating_t<T>(i);
+    }
+
+    // ceil
+    template <Floating T>
+    constexpr inline T ceil(T x) noexcept
+    {
+        float_to_int_t<T> i = static_cast<float_to_int_t<T>>(x);
+
+        if (x == i)
+            return x;
+
+        if (x < constants<T>::zero)
+            return to_floating_t<T>(i);
+        else
+            return to_floating_t<T>(i) + to_floating_t<T>(1);
     }
 
     // abs
@@ -151,11 +224,26 @@ namespace euler
         return y == constants<T>::zero ? fallback : x / y;
     }
 
-    // epsilon equals
-    template <Floating T>
-    constexpr inline bool epsilon_equal(T x, T y, T eps = constants<T>::epsilon) noexcept
+    template <Numeric T>
+    constexpr inline to_floating_t<T> safe_inv(T x, T fallback = constants<T>::zero) noexcept
     {
-        return abs(x - y) <= eps;
+        return x == constants<T>::zero ? fallback : to_floating_t<T>(1) / x;
+    }
+
+    // epsilon equals
+    template <Floating T1, Floating T2>
+    constexpr inline bool equal_epsilon(
+            T1 x,
+            T2 y,
+            std::common_type_t<T1, T2> eps =
+                constants<std::common_type_t<T1, T2>>::epsilon) noexcept
+    {
+        using type = std::common_type_t<T1, T2>;
+
+        return
+            abs(
+                    static_cast<type>(x) -
+                    static_cast<type>(y)) <= eps;
     }
 
     template <Floating T>
@@ -189,5 +277,6 @@ namespace euler
     {
         return rad * (constants<T>::rad_to_deg);
     }
+
 
 }

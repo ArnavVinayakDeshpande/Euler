@@ -142,6 +142,19 @@ test_common/fast:
 	$(MAKE) $(MAKESILENT) -f tests\CMakeFiles\test_common.dir\build.make tests/CMakeFiles/test_common.dir/build
 .PHONY : test_common/fast
 
+#=============================================================================
+# Target rules for targets named test_vec
+
+# Build rule for target.
+test_vec: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 test_vec
+.PHONY : test_vec
+
+# fast build rule for target.
+test_vec/fast:
+	$(MAKE) $(MAKESILENT) -f tests\CMakeFiles\test_vec.dir\build.make tests/CMakeFiles/test_vec.dir/build
+.PHONY : test_vec/fast
+
 src/common/common.obj: src/common/common.cpp.obj
 .PHONY : src/common/common.obj
 
@@ -190,6 +203,30 @@ src/core.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/core.cpp.s
 .PHONY : src/core.cpp.s
 
+src/vector/vec2.obj: src/vector/vec2.cpp.obj
+.PHONY : src/vector/vec2.obj
+
+# target to build an object file
+src/vector/vec2.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/vector/vec2.cpp.obj
+.PHONY : src/vector/vec2.cpp.obj
+
+src/vector/vec2.i: src/vector/vec2.cpp.i
+.PHONY : src/vector/vec2.i
+
+# target to preprocess a source file
+src/vector/vec2.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/vector/vec2.cpp.i
+.PHONY : src/vector/vec2.cpp.i
+
+src/vector/vec2.s: src/vector/vec2.cpp.s
+.PHONY : src/vector/vec2.s
+
+# target to generate assembly for a file
+src/vector/vec2.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\euler.dir\build.make CMakeFiles/euler.dir/src/vector/vec2.cpp.s
+.PHONY : src/vector/vec2.cpp.s
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -200,12 +237,16 @@ help:
 	@echo ... rebuild_cache
 	@echo ... euler
 	@echo ... test_common
+	@echo ... test_vec
 	@echo ... src/common/common.obj
 	@echo ... src/common/common.i
 	@echo ... src/common/common.s
 	@echo ... src/core.obj
 	@echo ... src/core.i
 	@echo ... src/core.s
+	@echo ... src/vector/vec2.obj
+	@echo ... src/vector/vec2.i
+	@echo ... src/vector/vec2.s
 .PHONY : help
 
 

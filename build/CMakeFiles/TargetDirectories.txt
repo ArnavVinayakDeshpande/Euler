@@ -2,5 +2,6 @@ E:/dev/Euler/build/CMakeFiles/euler.dir
 E:/dev/Euler/build/CMakeFiles/edit_cache.dir
 E:/dev/Euler/build/CMakeFiles/rebuild_cache.dir
 E:/dev/Euler/build/tests/CMakeFiles/test_common.dir
+E:/dev/Euler/build/tests/CMakeFiles/test_vec.dir
 E:/dev/Euler/build/tests/CMakeFiles/edit_cache.dir
 E:/dev/Euler/build/tests/CMakeFiles/rebuild_cache.dir

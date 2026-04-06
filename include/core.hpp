@@ -127,8 +127,23 @@ namespace euler
     template <Integral T>
     using int_to_float_t = typename int_to_float<T>::type;
 
+    template <Numeric T, bool = Floating<T>>
+    struct to_floating_impl;
+
     template <Numeric T>
-    using to_floating_t = std::conditional_t<Floating<T>, T, int_to_float<T>>;
+    struct to_floating_impl<T, true>
+    {
+        using type = T;
+    };
+
+    template <Numeric T>
+    struct to_floating_impl<T, false>
+    {
+        using type = int_to_float_t<T>;
+    };
+
+    template <Numeric T>
+    using to_floating_t = typename to_floating_impl<T>::type;
 
     template <typename A, typename B>
     using larger_t = std::conditional_t<sizeof(A) >= sizeof(B), A, B>;

@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/euler.dir/src/common/common.cpp.obj.d"
   "CMakeFiles/euler.dir/src/core.cpp.obj"
   "CMakeFiles/euler.dir/src/core.cpp.obj.d"
+  "CMakeFiles/euler.dir/src/vector/vec2.cpp.obj"
+  "CMakeFiles/euler.dir/src/vector/vec2.cpp.obj.d"
   "E:/dev/Euler/bin/libeuler.a"
   "E:/dev/Euler/bin/libeuler.pdb"
 )

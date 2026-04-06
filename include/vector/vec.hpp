@@ -1,5 +1,6 @@
+#pragma once
+
 #include "core.hpp"
-#include "macros.hpp"
 #include "common/common.hpp"
 #include <tuple>
 
@@ -7,14 +8,14 @@ namespace euler
 {
 
     template <Numeric T, size S>
-    class vec
+        requires(S > 0)
+    struct vec
     {
         using type = T;
-        constexpr static size dimensions = S;
+        constexpr static size dimension = S;
 
-        T data[S];
 
-        vec() noexcept
+        constexpr vec() noexcept
         {
             for (size i = 0; i < S; ++i)
                 data[i] = T(0);
@@ -31,6 +32,9 @@ namespace euler
             // TODO: Custom exceptions
             return data[i];
         }
+
+    protected:
+        T data[S];
     };
 
     template <Numeric T1, Numeric T2, size S>
@@ -117,34 +121,45 @@ namespace euler
         vec<T, S> result;
 
         for (size i = 0; i < S; ++i)
-            result[i] = abs(v[i]);
+            result[i] = euler::abs(v[i]);
 
         return result;
     }
 
     template <Floating T, size S>
-    constexpr inline vec<T, S> floor(const vec<T, S> &v)
+    constexpr inline auto floor(const vec<T, S> &v)
+        -> vec<T, S>
     {
         vec<T, S> result;
 
         for (size i = 0; i < S; ++i)
-            result[i] = floor(v[i]);
+            result[i] = euler::floor(v[i]);
 
         return result;
     }
 
     template <Floating T, size S>
-    constexpr inline vec<T, S> ceil(const vec<T, S> &v)
+    constexpr inline auto ceil(const vec<T, S> &v)
+        -> vec<T, S>
     {
         vec<T, S> result;
 
         for (size i = 0; i < S; ++i)
-            result[i] = ceil(v[i]);
+            result[i] = euler::ceil(v[i]);
 
         return result;
     }
 
-    // TODO: Rounding off
+    template <Floating T, size S>
+    constexpr inline vec<T, S> roundoff(const vec<T, S> &v, i32 pow)
+    {
+        vec<T, S> result;
+
+        for (size i = 0; i < S; ++i)
+            result[i] = euler::roundoff(v[i], pow);
+
+        return result;
+    }
 
     template <Floating T, size S>
     constexpr inline vec<T, S> frac(const vec<T, S> &v)
@@ -152,7 +167,7 @@ namespace euler
         vec<T, S> result;
 
         for (size i = 0; i < S; ++i)
-            result[i] = frac(v[i]);
+            result[i] = euler::frac(v[i]);
         
         return result;
     }
@@ -186,7 +201,7 @@ namespace euler
     template <Numeric T, size S>
     constexpr inline bool is_normalized(const vec<T, S> &v)
     {
-        return (length_sq(v) == to_floating_t<T>(1));
+        return epsilon_equal(length_sq(v), T(1));
     }
 
     template <Numeric T, size S>
@@ -229,33 +244,102 @@ namespace euler
 
         for (size i = 1; i < S; ++i)
             result = min(result, v[i]);
+
+        return result;
     }
 
     template <Numeric T, size S>
-    constexpr inline to_floating_t<T> mean(const vec<T, S> &v)
+    constexpr inline auto mean(const vec<T, S> &v)
+        -> to_floating_t<std::common_type_t<T, __decltype(S)>>
     {
-        // TODO: Make better
-        return sum(v) / to_floating_t<size>(S);
+        using type = to_floating_t<std::common_type_t<T, __decltype(S)>>;
+
+        return
+            safe_div(
+                    static_cast<type>(sum(v)),
+                    static_cast<type>(S));
     }
 
-    // TODO: perp_cw, perp_ccw
     template <Numeric T1, Numeric T2, size S>
     inline auto perp(
             const vec<T1, S> &v, 
             const vec<T2, S> &axis) 
-        -> vec<std::common_type_t<T1, T2>, S>
-    {
-        // get the cross product of v and axis
-        return normalize(cross(v, axis));
-    }
+        -> vec<std::common_type_t<T1, T2>, S> = delete;
 
     template <Numeric T1, Numeric T2, size S>
     inline auto neg_perp(
             const vec<T1, S> &v,
             const vec<T2, S> &axis)
-        -> vec<std::common_type_t<T1, T2>, S>
+        -> vec<std::common_type_t<T1, T2>, S> = delete;
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline bool comp_wise_gt(const vec<T, S> &v, M m)
     {
-        return normalize(cross(axis, v));
+        using type = std::common_type_t<T, M>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    static_cast<type>(v[i]) <=
+                    static_cast<type>(m))
+                return false;
+
+        return true;
+    }
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline bool comp_wise_gte(const vec<T, S> &v, M m)
+    {
+        using type = std::common_type_t<T, M>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    static_cast<type>(v[i]) <
+                    static_cast<type>(m))
+                return false;
+
+        return true;
+    }
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline bool comp_wise_lt(const vec<T, S> &v, M m)
+    {
+        using type = std::common_type_t<T, M>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    static_cast<type>(v[i]) >=
+                    static_cast<type>(m))
+                return false;
+
+        return true;
+    }
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline bool comp_wise_lte(const vec<T, S> &v, M m)
+    {
+        using type = std::common_type_t<T, M>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    static_cast<type>(v[i]) >
+                    static_cast<type>(m))
+                return false;
+
+        return true;
+    }
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline bool comp_wise_eq(const vec<T, S> &v, M m)
+    {
+        using type = std::common_type_t<T, M>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    static_cast<type>(v[i]) !=
+                    static_cast<type>(m))
+                return false;
+
+        return true;
     }
 
     template <Numeric T, size S>
@@ -271,7 +355,7 @@ namespace euler
         // axis -> 1 = x, 2 = y, 3 = z, ... 
         // axis -> -1 = -x, 2 = -y, 3 = -z, ...
         to_floating_t<T> cos_angle = 
-            static_cast<to_floating_t<T>>(v[abs(axis) - 1]), length(v);
+            safe_div(static_cast<to_floating_t<T>>(v[abs(axis) - 1]), length(v));
 
         // if axis is positive, return this else return pi - this
         return cos_angle;
@@ -291,16 +375,13 @@ namespace euler
     }
 
     template <typename ...Vecs>
+        requires(sizeof...(Vecs) > 1)
     constexpr inline auto add(const Vecs &...vecs)
     {
-        static_assert(
-                sizeof...(Vecs) > 1,
-                "In Euler::add for vectors, atleast two vector argument is required.");
-
         using first_vec = 
             std::remove_cvref_t<
                 std::tuple_element_t<0, std::tuple<Vecs...>>>;
-        constexpr size dim = first_vec::dimensions;
+        constexpr size dim = first_vec::dimension;
 
         static_assert(
                 ((std::remove_cvref_t<Vecs>::dimension == dim) && ...),
@@ -309,7 +390,7 @@ namespace euler
         using type = 
             std::common_type_t<
                 typename
-                    std::remove_cvref_t<Vecs>::types...>;
+                    std::remove_cvref_t<Vecs>::type...>;
 
         vec<type, dim> result;
 
@@ -347,7 +428,7 @@ namespace euler
 
         for (size i = 0; i < S; ++i)
             result[i] =
-                abs(
+                euler::abs(
                         static_cast<type>(v1[i]) -
                         static_cast<type>(v2[i]));
 
@@ -355,13 +436,9 @@ namespace euler
     }
 
     template <typename ...Vecs>
+        requires(sizeof...(Vecs) > 1)
     constexpr inline auto mult(const Vecs &...vecs)
     {
-        // make sure number of vectors greater than 1
-        static_assert(
-                sizeof...(Vecs) > 1,
-                "In Euler::mult for vecs, number of vecs must be atleast 2");
-
         // get the first vec
         using first_vec = 
             std::remove_cvref_t<
@@ -385,29 +462,18 @@ namespace euler
         return result;
     }
 
+    // TODO: Look into if you want to delete a generic cross
     template <Numeric T1, Numeric T2, size S>
-    constexpr inline auto cross(
+    auto cross(
             const vec<T1, S> &v1,
-            const vec<T2, S> &v2) -> vec<std::common_type_t<T1, T2>,  S>
-    {
-        EULER_MUST_BE_IMPLEMENTED("vecs::cross");
-    }
-
-    template <Numeric T1, Numeric T2, size S>
-    inline auto cross_length(
-            const vec<T1, S> &v1,
-            const vec<T2, S> &v2) 
-        -> to_floating_t<std::common_type_t<T1, T2>>
-    {
-        return length(cross(v1, v2));
-    }
+            const vec<T2, S> &v2) -> vec<std::common_type_t<T1, T2>,  S> = delete;
 
     template <typename T1, typename T2, size S>
     inline auto distance(
             const vec<T1, S> &v1,
-            const vec<T2, S> &v2) -> std::common_type_t<T1, T2>
+            const vec<T2, S> &v2) -> to_floating_t<std::common_type_t<T1, T2>>
     {
-        using type = std::common_type_t<T1, T2>;
+        using type = to_floating_t<std::common_type_t<T1, T2>>;
          
         type result = type(0);
 
@@ -420,7 +486,7 @@ namespace euler
     template <typename T1, typename T2, size S>
     constexpr inline auto distance_sq(
             const vec<T1, S> &v1,
-            const vec<T2, S> &v2) -> std::common_type<T1, T2>
+            const vec<T2, S> &v2) -> std::common_type_t<T1, T2>
     {
         using type = std::common_type_t<T1, T2>;
 
@@ -456,12 +522,9 @@ namespace euler
     }
 
     template <typename First, typename ...Rest> // TODO: Add vector concept
-    constexpr inline bool is_equal(const First &first, const Rest &...rest)
+        requires(sizeof...(Rest) > 0)
+    constexpr inline bool equal(const First &first, const Rest &...rest)
     {
-        static_assert(
-                sizeof...(Rest) > 0,
-                "Need atleast two.");
-
         constexpr size dim = First::dimension;
 
         static_assert(
@@ -470,7 +533,7 @@ namespace euler
 
         using type = 
             std::common_type_t<
-                First,
+                typename std::remove_cvref_t<First>::type,
                 typename std::remove_cvref_t<Rest>::type...>;
 
         for (size i = 0; i < dim; ++i)
@@ -488,7 +551,25 @@ namespace euler
         return true;
     }
 
-    // TODO: equal_epsilon
+    template <Numeric T1, Numeric T2, size S>
+    constexpr inline bool equal_epsilon(
+            const vec<T1, S> &v1,
+            const vec<T2, S> &v2,
+            std::common_type_t<T1, T2> eps = 
+                constants<std::common_type_t<T1, T2>>::epsilon) 
+    {
+        using type = std::common_type_t<T1, T2>;
+
+        for (size i = 0; i < S; ++i)
+            if (
+                    !euler::equal_epsilon(
+                        static_cast<type>(v1[i]),
+                        static_cast<type>(v2[i]),
+                        eps))
+                return false;
+
+        return true;
+    }
 
     template <Numeric T1, Numeric T2, size S>
     inline auto project(const vec<T1, S> &of, const vec<T2, S> &on)
@@ -538,7 +619,7 @@ namespace euler
         vec<type, S>  result;
 
         for (size i = 0; i < S; ++i)
-            result =
+            result[i] =
                 lerp(
                         static_cast<type>(v1[i]),
                         static_cast<type>(v2[i]),
@@ -557,12 +638,9 @@ namespace euler
     }
 
     template <typename ...Vecs>
+        requires(sizeof...(Vecs) > 1)
     constexpr inline auto max(const Vecs &...vecs)
     {
-        static_assert(
-                sizeof...(Vecs) > 1,
-                "TODO");
-
         using first_vec =
             std::remove_cvref_t<
                 std::tuple_element_t<0, std::tuple<Vecs...>>>;
@@ -579,18 +657,15 @@ namespace euler
         vec<type, dim> result;
 
         for (size i = 0; i < dim; ++i)
-            result[i] = max(vecs[i]...);
+            result[i] = euler::max(vecs[i]...);
 
         return result;
     }
 
     template <typename ...Vecs>
+        requires(sizeof...(Vecs) > 1)
     constexpr inline auto min(const Vecs &...vecs)
     {
-        static_assert(
-                sizeof...(Vecs) > 1,
-                "TODO");
-
         using first_vec =
             std::remove_cvref_t<
                 std::tuple_element_t<0, std::tuple<Vecs...>>>;
@@ -607,24 +682,116 @@ namespace euler
         vec<type, dim> result;
 
         for (size i = 0; i < dim; ++i)
-            result[i] = min(vecs[i]...);
+            result[i] = euler::min(vecs[i]...);
 
         return result;
     }
 
     template <Numeric T, Numeric Min, Numeric Max, size S>
     constexpr inline auto clamp(
+            const vec<T, S> &v,
             Min min,
-            Max max,
-            const vec<T, S> &v) -> vec<std::common_type_t<T, Min, Max>, S>
+            Max max) -> vec<std::common_type_t<T, Min, Max>, S>
     {
         using type = std::common_type_t<T, Min, Max>;
 
         vec<type, S> result;
 
         for (size i = 0; i < S; ++i)
-            result[i] = clamp(v[i], min, max);
+            result[i] = euler::clamp(v[i], min, max);
 
+        return result;
+    }
+
+    template <Numeric T, size S, Numeric M>
+    constexpr inline vec<M, S> cast(const vec<T, S> &v)
+    {
+        vec<M, S> result;
+
+        for (size i = 0; i < S; ++i)
+            result[i] = static_cast<M>(v[i]);
+        
+        return result;
     }
     
+}
+
+template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+constexpr inline auto operator+(
+        const euler::vec<T1, S> &v1,
+        const euler::vec<T2, S> &v2) -> euler::vec<std::common_type_t<T1, T2>, S>
+{
+    return euler::add(v1, v2);
+}
+
+template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+constexpr inline auto operator-(
+        const euler::vec<T1, S> &v1,
+        const euler::vec<T2, S> &v2) -> euler::vec<std::common_type_t<T1, T2>, S>
+{
+    return euler::sub(v1, v2);
+}
+
+template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+constexpr inline auto operator*(
+        const euler::vec<T1, S> &v1,
+        const euler::vec<T2, S> &v2) -> euler::vec<std::common_type_t<T1, T2>, S>
+{
+    return euler::mult(v1, v2);
+}
+
+template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+constexpr inline bool operator==(
+        const euler::vec<T1, S> &v1,
+        const euler::vec<T2, S> &v2)
+{
+    return euler::equal(v1, v2);
+}
+
+template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+constexpr inline bool operator!=(
+        const euler::vec<T1, S> &v1,
+        const euler::vec<T2, S> &v2)
+{
+    return !euler::equal(v1, v2);
+}
+
+template <euler::Numeric T, euler::size S, euler::Numeric M>
+constexpr inline bool operator>>(
+        const euler::vec<T, S> &v,
+        M m)
+{
+    return euler::comp_wise_gt(v, m);
+}
+
+template <euler::Numeric T, euler::size S, euler::Numeric M>
+constexpr inline bool operator>=(
+        const euler::vec<T, S> &v,
+        M m)
+{
+    return euler::comp_wise_gte(v, m);
+}
+
+template <euler::Numeric T, euler::size S, euler::Numeric M>
+constexpr inline bool operator<<(
+        const euler::vec<T, S> &v,
+        M m)
+{
+    return euler::comp_wise_lte(v, m);
+}
+
+template <euler::Numeric T, euler::size S, euler::Numeric M>
+constexpr inline bool operator<=(
+        const euler::vec<T, S> &v,
+        M m)
+{
+    return euler::comp_wise_lte(v, m);
+}
+
+template <euler::Numeric T, euler::size S, euler::Numeric M>
+constexpr inline bool operator==(
+        const euler::vec<T, S> &v,
+        M m)
+{
+    return euler::comp_wise_eq(v, m);
 }

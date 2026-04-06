@@ -98,19 +98,36 @@ CMakeFiles/euler.dir/src/core.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/euler.dir/src/core.cpp.s"
 	C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\C__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\dev\Euler\src\core.cpp -o CMakeFiles\euler.dir\src\core.cpp.s
 
+CMakeFiles/euler.dir/src/vector/vec2.cpp.obj: CMakeFiles/euler.dir/flags.make
+CMakeFiles/euler.dir/src/vector/vec2.cpp.obj: CMakeFiles/euler.dir/includes_CXX.rsp
+CMakeFiles/euler.dir/src/vector/vec2.cpp.obj: E:/dev/Euler/src/vector/vec2.cpp
+CMakeFiles/euler.dir/src/vector/vec2.cpp.obj: CMakeFiles/euler.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\dev\Euler\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/euler.dir/src/vector/vec2.cpp.obj"
+	C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\C__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/euler.dir/src/vector/vec2.cpp.obj -MF CMakeFiles\euler.dir\src\vector\vec2.cpp.obj.d -o CMakeFiles\euler.dir\src\vector\vec2.cpp.obj -c E:\dev\Euler\src\vector\vec2.cpp
+
+CMakeFiles/euler.dir/src/vector/vec2.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/euler.dir/src/vector/vec2.cpp.i"
+	C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\C__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\dev\Euler\src\vector\vec2.cpp > CMakeFiles\euler.dir\src\vector\vec2.cpp.i
+
+CMakeFiles/euler.dir/src/vector/vec2.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/euler.dir/src/vector/vec2.cpp.s"
+	C:\PROGRA~1\WINLIB~1.0\WINLIB~1.0-R\mingw64\bin\C__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\dev\Euler\src\vector\vec2.cpp -o CMakeFiles\euler.dir\src\vector\vec2.cpp.s
+
 # Object files for target euler
 euler_OBJECTS = \
 "CMakeFiles/euler.dir/src/common/common.cpp.obj" \
-"CMakeFiles/euler.dir/src/core.cpp.obj"
+"CMakeFiles/euler.dir/src/core.cpp.obj" \
+"CMakeFiles/euler.dir/src/vector/vec2.cpp.obj"
 
 # External object files for target euler
 euler_EXTERNAL_OBJECTS =
 
 E:/dev/Euler/bin/libeuler.a: CMakeFiles/euler.dir/src/common/common.cpp.obj
 E:/dev/Euler/bin/libeuler.a: CMakeFiles/euler.dir/src/core.cpp.obj
+E:/dev/Euler/bin/libeuler.a: CMakeFiles/euler.dir/src/vector/vec2.cpp.obj
 E:/dev/Euler/bin/libeuler.a: CMakeFiles/euler.dir/build.make
 E:/dev/Euler/bin/libeuler.a: CMakeFiles/euler.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\dev\Euler\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX static library E:\dev\Euler\bin\libeuler.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\dev\Euler\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX static library E:\dev\Euler\bin\libeuler.a"
 	$(CMAKE_COMMAND) -P CMakeFiles\euler.dir\cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\euler.dir\link.txt --verbose=$(VERBOSE)
 

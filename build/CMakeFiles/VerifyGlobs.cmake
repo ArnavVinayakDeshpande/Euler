@@ -10,6 +10,7 @@ set(OLD_GLOB
   "E:/dev/Euler/include//macros.hpp"
   "E:/dev/Euler/include//vector/vec.hpp"
   "E:/dev/Euler/include//vector/vec2.hpp"
+  "E:/dev/Euler/include//vector/vec3.hpp"
   )
 if(NOT "${NEW_GLOB}" STREQUAL "${OLD_GLOB}")
   message("-- GLOB mismatch!")

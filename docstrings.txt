@@ -1,0 +1,215 @@
+GENERAL PRINCIPLES
+------------------
+1. Be consistent across the entire library.
+2. Prefer clarity over verbosity.
+3. Every public symbol MUST have a docstring.
+4. Private/internal symbols MAY have minimal or no documentation.
+5. Use Doxygen-style comments for compatibility with tools.
+
+COMMENT STYLE
+-------------
+Use triple slash for single-line docstrings:
+
+/// @brief Short description
+/// More detailed explanation...
+
+Use /** */ for multi-line when needed:
+
+/**
+ * @brief Short description
+ * Detailed explanation...
+ */
+
+ORDER OF TAGS
+-------------
+1. @brief
+2. Detailed description (free text)
+3. @tparam (for templates)
+4. @param
+5. @return
+6. @note (optional)
+7. @warning (optional)
+8. @see (optional)
+
+--------------------------------------------------
+
+MACROS
+------
+/// @brief Defines maximum vector size.
+/// @note Used internally for static allocation.
+#define MR_MAX_VEC_SIZE 16
+
+--------------------------------------------------
+
+NAMESPACES
+----------
+/// @brief Core mathematical utilities namespace.
+/// Contains all base-level utilities and helpers.
+namespace mr::core {}
+
+--------------------------------------------------
+
+CONCEPTS
+--------
+/// @brief Concept for numeric types.
+/// Ensures type behaves like a number.
+/// @tparam T Type to check.
+template <typename T>
+concept Numeric = requires(T a) {
+    a + a;
+    a - a;
+};
+
+--------------------------------------------------
+
+CLASSES / STRUCTS
+-----------------
+/// @brief Represents a fixed-size vector.
+/// @tparam T Element type.
+/// @tparam N Number of elements.
+/// @note N must be greater than 0.
+template <typename T, size_t N>
+struct vec {};
+
+--------------------------------------------------
+
+MEMBER VARIABLES
+----------------
+/// @brief Underlying data storage.
+/// @note Stored in contiguous memory.
+T data[N];
+
+--------------------------------------------------
+
+CONSTRUCTORS
+------------
+/// @brief Constructs a vector with given values.
+/// @param values Elements to initialize the vector with.
+constexpr vec(T... values);
+
+--------------------------------------------------
+
+METHODS / MEMBER FUNCTIONS
+--------------------------
+/// @brief Computes the magnitude of the vector.
+/// @return Length of the vector as a floating-point value.
+/// @note Uses Euclidean norm.
+constexpr T length() const;
+
+--------------------------------------------------
+
+FREE FUNCTIONS
+--------------
+/// @brief Computes dot product of two vectors.
+/// @param a First vector.
+/// @param b Second vector.
+/// @return Dot product of a and b.
+/// @warning Undefined behavior if sizes mismatch.
+template <typename T, size_t N>
+constexpr T dot(const vec<T, N>& a, const vec<T, N>& b);
+
+--------------------------------------------------
+
+TEMPLATE PARAMETERS
+-------------------
+Use @tparam for all template parameters:
+
+/// @tparam T Numeric type.
+/// @tparam N Dimension size.
+
+--------------------------------------------------
+
+FUNCTION PARAMETERS
+-------------------
+Format:
+
+/// @param name Description.
+
+Rules:
+- Use lowercase parameter names.
+- Be concise but clear.
+- Mention constraints if any.
+
+--------------------------------------------------
+
+RETURN VALUES
+-------------
+Always specify BOTH:
+1. Type (implicitly via signature)
+2. Meaning (via @return)
+
+Example:
+
+/// @return Normalized vector (unit length).
+
+Avoid:
+/// @return vec<T, N>
+
+Instead describe WHAT it returns.
+
+--------------------------------------------------
+
+NOTES AND WARNINGS
+-----------------
+
+Use @note for:
+- Implementation details
+- Performance notes
+- Mathematical definitions
+
+Use @warning for:
+- Undefined behavior
+- Dangerous assumptions
+
+--------------------------------------------------
+
+EXAMPLES (OPTIONAL BUT RECOMMENDED)
+----------------------------------
+
+/// @brief Computes square of a number.
+/// @param x Input value.
+/// @return Square of x.
+/// @example
+/// auto y = square(3); // y = 9
+template <typename T>
+constexpr T square(T x);
+
+--------------------------------------------------
+
+STYLE RULES
+-----------
+
+- Always end @brief with a period.
+- Use present tense: "Computes", not "Computed".
+- Avoid redundant phrases like "This function".
+- Keep lines under ~100 characters.
+- Align tags vertically when possible.
+
+--------------------------------------------------
+
+FUNCTION LIBRARY (fn MODULE SPECIFIC)
+------------------------------------
+
+/// @brief Base class for mathematical functions.
+/// @tparam Derived Derived function type.
+/// @tparam RetType Return value type.
+/// @tparam RetDim Output vector dimension.
+/// @note Uses CRTP for static polymorphism.
+template <typename Derived, typename RetType, size_t RetDim>
+struct base {};
+
+/// @brief Applies stored arguments to a callable.
+/// @tparam F Callable type.
+/// @param f Function to invoke.
+/// @return Result of invoking f with stored arguments.
+template <typename F>
+constexpr decltype(auto) apply(F&& f) const;
+
+--------------------------------------------------
+
+FINAL NOTES
+-----------
+
+- Documentation is part of the API contract.
+- Write docs as if another developer will use your library without reading code.
+- Consistency matters more than perfection.

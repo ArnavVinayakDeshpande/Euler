@@ -60,7 +60,7 @@ namespace euler
 
         constexpr static vec2<T> null() noexcept
         {
-            return vec2<T>();
+            return vec2<T>(0);
         }
 
         constexpr static vec2<T> x_axis() noexcept

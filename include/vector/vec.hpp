@@ -357,7 +357,6 @@ namespace euler
         to_floating_t<T> cos_angle = 
             safe_div(static_cast<to_floating_t<T>>(v[abs(axis) - 1]), length(v));
 
-        // if axis is positive, return this else return pi - this
         return cos_angle;
     }
 
@@ -366,7 +365,7 @@ namespace euler
             const vec<T, S> &v,
             ssize axis)
     {
-        auto angle_from_pve = cos_angle_from_axis(v, axis);
+        auto angle_from_pve = std::acos(cos_angle_from_axis(v, axis));
 
         return
             (axis > 0) ? 

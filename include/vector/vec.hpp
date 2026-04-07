@@ -456,9 +456,13 @@ namespace euler
      */
     template <Numeric T, size S>
     constexpr inline auto mean(const vec<T, S> &v)
-        -> to_floating_t<std::common_type_t<T, __decltype(S)>>
+        -> to_floating_t<std::common_type_t<T, std::make_signed_t<__decltype(S)>>>
     {
-        using type = to_floating_t<std::common_type_t<T, __decltype(S)>>;
+        using type = 
+            to_floating_t<
+                std::common_type_t<
+                    T,
+                    std::make_signed_t<__decltype(S)>>>;
 
         return
             safe_div(

@@ -7,6 +7,11 @@ file(GLOB_RECURSE NEW_GLOB LIST_DIRECTORIES false "E:/dev/Euler/include//*.hpp")
 set(OLD_GLOB
   "E:/dev/Euler/include//common/common.hpp"
   "E:/dev/Euler/include//core.hpp"
+  "E:/dev/Euler/include//fn/arithmetic/add.hpp"
+  "E:/dev/Euler/include//fn/arithmetic/diff.hpp"
+  "E:/dev/Euler/include//fn/arithmetic/mult.hpp"
+  "E:/dev/Euler/include//fn/arithmetic/sub.hpp"
+  "E:/dev/Euler/include//fn/fn.hpp"
   "E:/dev/Euler/include//macros.hpp"
   "E:/dev/Euler/include//vector/vec.hpp"
   "E:/dev/Euler/include//vector/vec2.hpp"

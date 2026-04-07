@@ -1,0 +1,2779 @@
+diff --git a/docstrings.txt b/docstrings.txt
+new file mode 100644
+index 0000000..63e6f8e
+--- /dev/null
++++ b/docstrings.txt
+@@ -0,0 +1,215 @@
++GENERAL PRINCIPLES
++------------------
++1. Be consistent across the entire library.
++2. Prefer clarity over verbosity.
++3. Every public symbol MUST have a docstring.
++4. Private/internal symbols MAY have minimal or no documentation.
++5. Use Doxygen-style comments for compatibility with tools.
++
++COMMENT STYLE
++-------------
++Use triple slash for single-line docstrings:
++
++/// @brief Short description
++/// More detailed explanation...
++
++Use /** */ for multi-line when needed:
++
++/**
++ * @brief Short description
++ * Detailed explanation...
++ */
++
++ORDER OF TAGS
++-------------
++1. @brief
++2. Detailed description (free text)
++3. @tparam (for templates)
++4. @param
++5. @return
++6. @note (optional)
++7. @warning (optional)
++8. @see (optional)
++
++--------------------------------------------------
++
++MACROS
++------
++/// @brief Defines maximum vector size.
++/// @note Used internally for static allocation.
++#define MR_MAX_VEC_SIZE 16
++
++--------------------------------------------------
++
++NAMESPACES
++----------
++/// @brief Core mathematical utilities namespace.
++/// Contains all base-level utilities and helpers.
++namespace mr::core {}
++
++--------------------------------------------------
++
++CONCEPTS
++--------
++/// @brief Concept for numeric types.
++/// Ensures type behaves like a number.
++/// @tparam T Type to check.
++template <typename T>
++concept Numeric = requires(T a) {
++    a + a;
++    a - a;
++};
++
++--------------------------------------------------
++
++CLASSES / STRUCTS
++-----------------
++/// @brief Represents a fixed-size vector.
++/// @tparam T Element type.
++/// @tparam N Number of elements.
++/// @note N must be greater than 0.
++template <typename T, size_t N>
++struct vec {};
++
++--------------------------------------------------
++
++MEMBER VARIABLES
++----------------
++/// @brief Underlying data storage.
++/// @note Stored in contiguous memory.
++T data[N];
++
++--------------------------------------------------
++
++CONSTRUCTORS
++------------
++/// @brief Constructs a vector with given values.
++/// @param values Elements to initialize the vector with.
++constexpr vec(T... values);
++
++--------------------------------------------------
++
++METHODS / MEMBER FUNCTIONS
++--------------------------
++/// @brief Computes the magnitude of the vector.
++/// @return Length of the vector as a floating-point value.
++/// @note Uses Euclidean norm.
++constexpr T length() const;
++
++--------------------------------------------------
++
++FREE FUNCTIONS
++--------------
++/// @brief Computes dot product of two vectors.
++/// @param a First vector.
++/// @param b Second vector.
++/// @return Dot product of a and b.
++/// @warning Undefined behavior if sizes mismatch.
++template <typename T, size_t N>
++constexpr T dot(const vec<T, N>& a, const vec<T, N>& b);
++
++--------------------------------------------------
++
++TEMPLATE PARAMETERS
++-------------------
++Use @tparam for all template parameters:
++
++/// @tparam T Numeric type.
++/// @tparam N Dimension size.
++
++--------------------------------------------------
++
++FUNCTION PARAMETERS
++-------------------
++Format:
++
++/// @param name Description.
++
++Rules:
++- Use lowercase parameter names.
++- Be concise but clear.
++- Mention constraints if any.
++
++--------------------------------------------------
++
++RETURN VALUES
++-------------
++Always specify BOTH:
++1. Type (implicitly via signature)
++2. Meaning (via @return)
++
++Example:
++
++/// @return Normalized vector (unit length).
++
++Avoid:
++/// @return vec<T, N>
++
++Instead describe WHAT it returns.
++
++--------------------------------------------------
++
++NOTES AND WARNINGS
++-----------------
++
++Use @note for:
++- Implementation details
++- Performance notes
++- Mathematical definitions
++
++Use @warning for:
++- Undefined behavior
++- Dangerous assumptions
++
++--------------------------------------------------
++
++EXAMPLES (OPTIONAL BUT RECOMMENDED)
++----------------------------------
++
++/// @brief Computes square of a number.
++/// @param x Input value.
++/// @return Square of x.
++/// @example
++/// auto y = square(3); // y = 9
++template <typename T>
++constexpr T square(T x);
++
++--------------------------------------------------
++
++STYLE RULES
++-----------
++
++- Always end @brief with a period.
++- Use present tense: "Computes", not "Computed".
++- Avoid redundant phrases like "This function".
++- Keep lines under ~100 characters.
++- Align tags vertically when possible.
++
++--------------------------------------------------
++
++FUNCTION LIBRARY (fn MODULE SPECIFIC)
++------------------------------------
++
++/// @brief Base class for mathematical functions.
++/// @tparam Derived Derived function type.
++/// @tparam RetType Return value type.
++/// @tparam RetDim Output vector dimension.
++/// @note Uses CRTP for static polymorphism.
++template <typename Derived, typename RetType, size_t RetDim>
++struct base {};
++
++/// @brief Applies stored arguments to a callable.
++/// @tparam F Callable type.
++/// @param f Function to invoke.
++/// @return Result of invoking f with stored arguments.
++template <typename F>
++constexpr decltype(auto) apply(F&& f) const;
++
++--------------------------------------------------
++
++FINAL NOTES
++-----------
++
++- Documentation is part of the API contract.
++- Write docs as if another developer will use your library without reading code.
++- Consistency matters more than perfection.
+diff --git a/include/common/common.hpp b/include/common/common.hpp
+index 98e5e70..513796a 100644
+--- a/include/common/common.hpp
++++ b/include/common/common.hpp
+@@ -1,57 +1,110 @@
++/**
++ * @file commmon/common.hpp
++ * @author Arnav Deshpande
++ *
++ * Contains common helper functions used throughout the library.
++ */
++
+ #pragma once
+ 
+ #include "core.hpp"
+ #include <limits>
+ 
++/// @brief Primary namespace for lib euler.
+ namespace euler
+ {
+ 
+-    // constants
++    /**
++     * @brief Values of important constants.
++     * @tparam T Data type used for the constants.
++     */
+     template <Numeric T>
+     struct constants
+     {
+-        // Fundamental
++        /// @brief Zero.
+         static constexpr T zero = T(0);
++
++        /// @brief One.
+         static constexpr T one  = T(1);
++
++        /// @brief Two.
+         static constexpr T two  = T(2);
+ 
+-        // Pi family
++        /// @brief Pi.
+         static constexpr T pi        = static_cast<T>(3.14159265358979323846);
++
++        /// @brief Twice of pi.
+         static constexpr T two_pi    = static_cast<T>(2) * pi;
++
++        /// @brief Half of pi.
+         static constexpr T half_pi   = pi / static_cast<T>(2);
++
++        /// @brief Inverse of pi.
+         static constexpr T inv_pi    = static_cast<T>(1) / pi;
++
++        /// @brief Inverse of 2 * pi.
+         static constexpr T inv_two_pi= static_cast<T>(1) / two_pi;
+ 
+-        // Roots
++        /// @brief Square root of 2.
+         static constexpr T sqrt2     = static_cast<T>(1.4142135623730950488);
++
++        /// @brief Inverse of square root of 2.
+         static constexpr T inv_sqrt2 = static_cast<T>(1) / sqrt2;
+ 
+-        // Euler / exp / log
++        /// @brief Eulers constant.
+         static constexpr T e         = static_cast<T>(2.71828182845904523536);
++
++        /// @brief Log of e to the base 2.
+         static constexpr T log2e     = static_cast<T>(1.44269504088896340736);
++
++        /// @brief Log of e to the base 10.
+         static constexpr T log10e    = static_cast<T>(0.43429448190325182765);
++
++        /// @brief Natural log of 2.
+         static constexpr T ln2       = static_cast<T>(0.69314718055994530942);
++
++        /// @brief Naturl log of 10.
+         static constexpr T ln10      = static_cast<T>(2.30258509299404568402);
+ 
+-        // Angle conversions
++        /// @brief Degrees to radians convertor.
+         static constexpr T deg_to_rad = pi / static_cast<T>(180);
++
++        /// @brief Radians to degrees convertor.
+         static constexpr T rad_to_deg = static_cast<T>(180) / pi;
+ 
+-        // Machine limits
++        /// @brief Machine-set epsilon.
++        /// @note Equals std::numeric_limits<T>::epsilon().
+         static constexpr T epsilon = std::numeric_limits<T>::epsilon();
++
++        /// @brief Machine-set infinity.
++        /// @note Equals std::numeric_limits<T>::infinity().
+         static constexpr T inf     = std::numeric_limits<T>::infinity();
+ 
+-        // Small useful thresholds
++        /// @brief Small threshold.
+         static constexpr T small   = static_cast<T>(1e-6);
++
++        /// @brief Large threshold.
+         static constexpr T large   = static_cast<T>(1e6);
+     };
+ 
++    /**
++     * @brief Squares the input.
++     * @tparam T Numeric input.
++     * @param x Input.
++     * @return Square of theinput.
++     */
+     template <Numeric T>
+     constexpr inline T sqr(T x)
+     {
+         return x * x;
+     }
+ 
++    /**
++     * @brief Cubes the input.
++     * @tparam T Numeric input.
++     * @param x Input.
++     * @return Cube of theinput.
++     */
+     template <Numeric T>
+     constexpr inline T cube(T x)
+     {
+@@ -70,7 +123,17 @@ namespace euler
+     /*    }*/
+     /*}*/
+ 
+-    // max
++    /**
++     * @brief Maximum of the given values.
++     * It converts all the given inputs to a common type using std::common_type_t,
++     * and returns the maximum from the converted values.
++     * @tparam First Type of first input.
++     * @tparam Rest... Type of the rest of the inputs.
++     * @param first First input.
++     * @param rest Rest of the inputs.
++     * @return Maximum value.
++     * @note Atleast 1 argument must be given in rest, i.e. atleast 2 arguments total are needed.
++     */
+     template <Numeric First, Numeric ...Rest>
+         requires(sizeof...(Rest) > 0)
+     constexpr inline auto max(First first, Rest ...rest) noexcept
+@@ -91,7 +154,17 @@ namespace euler
+         return result;
+     }
+ 
+-    // min
++    /**
++     * @brief Minimize of the given values.
++     * It converts all the given inputs to a common type using std::common_type_t,
++     * and returns the minimum from the converted values.
++     * @tparam First Type of first input.
++     * @tparam Rest... Type of the rest of the inputs.
++     * @param first First input.
++     * @param rest Rest of the inputs.
++     * @return Minimum value.
++     * @note Atleast 1 argument must be given in rest, i.e. atleast 2 arguments total are needed.
++     */
+     template <Numeric First, Numeric ...Rest>
+         requires(sizeof...(Rest) > 0)
+     constexpr inline auto min(First first, Rest ...rest) noexcept
+@@ -112,7 +185,16 @@ namespace euler
+         return result;
+     }
+ 
+-    // clamp
++    /**
++     * @brief Clamps the given value.
++     * @tparam X Type of value to clamp.
++     * @tparam Min Type of minimum value.
++     * @tparam Max Type of maximum value.
++     * @param x Value to clamp.
++     * @param mn Minimum accepted value.
++     * @param mx Maximum accepted value.
++     * @return Clamped value.
++     */
+     template <Numeric X, Numeric Min, Numeric Max>
+     constexpr inline auto clamp(X x, Min mn, Max mx) noexcept
+         -> std::common_type_t<X, Min,  Max>
+@@ -127,6 +209,19 @@ namespace euler
+                         static_cast<type>(x)));
+     }
+ 
++    /**
++     * @brief Rounds off given value.
++     * Clamps off given input value to power of 10 given.
++     * @tparam T Floating point type of value to clamp.
++     * @param x Input to round off.
++     * @param pow Power of 10 to round off to.
++     * @return Roundoff value.
++     * @example
++     *      x = 123.456
++     *      pow = 0 -> 123.0
++     *      pow = -1 -> 123.5
++     *      pow = 1 -> 120.0
++     */
+     template <Floating T>
+     constexpr inline T roundoff(T x, i32 pow)
+     {
+@@ -163,14 +258,24 @@ namespace euler
+         }
+     }
+ 
+-    // frac
++    /**
++     * @brief Frac of input.
++     * @tparam T Type of input.
++     * @param x Value of input.
++     * @return Fractional part of input.
++     */
+     template <Floating T>
+     constexpr inline T frac(T x) noexcept
+     {
+         return x - floor(x);
+     }
+ 
+-    // floor
++    /**
++     * @brief Floor of input.
++     * @tparam T Type of input.
++     * @param x Value of input.
++     * @return Floored value of the input.
++     */
+     template <Floating T>
+     constexpr inline T floor(T x) noexcept
+     {
+@@ -185,7 +290,12 @@ namespace euler
+             return to_floating_t<T>(i);
+     }
+ 
+-    // ceil
++    /**
++     * @brief Ceil of input.
++     * @tparam T Type of input.
++     * @param x Value of input.
++     * @return Ceiled value of the input.
++     */
+     template <Floating T>
+     constexpr inline T ceil(T x) noexcept
+     {
+@@ -200,7 +310,12 @@ namespace euler
+             return to_floating_t<T>(i) + to_floating_t<T>(1);
+     }
+ 
+-    // abs
++    /**
++     * @brief Absolute value.
++     * @tparam T Type of input.
++     * @param x Value of input.
++     * @return Absolute value of input.
++     */
+     template <Numeric T>
+     constexpr inline T abs(T x) noexcept
+     {
+@@ -210,27 +325,58 @@ namespace euler
+             return x;
+     }
+ 
+-    // sign
++    /**
++     * @brief Sign.
++     * @tparam T Type of input.
++     * @param x Value of input.
++     * @return Sign of the input.
++     * @note
++     *      Possible values include:
++     *      +1 -> If input is positive,
++     *      -1 -> If input is negative,
++     *       0 -> If input is zero.
++     */
+     template <Numeric T>
+     constexpr inline T sign(T x) noexcept
+     {
+         return (constants<T>::zero < x) - (x < constants<T>::zero);
+     }
+ 
+-    // safe division
++    /**
++     * @brief Safe division.
++     * @tparam T Type of input.
++     * @param x Numerator.
++     * @param y Denominator.
++     * @param fallback Fallback value in case y is zero, by default it is zero.
++     * @return x / y.
++     */
+     template <Numeric T>
+     constexpr inline T safe_div(T x, T y, T fallback = constants<T>::zero) noexcept
+     {
+         return y == constants<T>::zero ? fallback : x / y;
+     }
+ 
++    /**
++     * @brief Safe inv.
++     * @tparam T Type of input.
++     * @param x Value to inverse.
++     * @param fallback Fallback value in case x is zero, by default it is zero.
++     */
+     template <Numeric T>
+     constexpr inline to_floating_t<T> safe_inv(T x, T fallback = constants<T>::zero) noexcept
+     {
+         return x == constants<T>::zero ? fallback : to_floating_t<T>(1) / x;
+     }
+ 
+-    // epsilon equals
++    /**
++     * @brief Epsilon equal.
++     * @tparam T1 Type of lhs.
++     * @tparam T2 Type of rhs.
++     * @param x Value of lhs.
++     * @param y Value of rhs.
++     * @param eps Epsilon value, type is common type of T1, T2. By default set to constants::epsilon.
++     * @return Is difference in value of inputs is less than epsilon.
++     */
+     template <Floating T1, Floating T2>
+     constexpr inline bool equal_epsilon(
+             T1 x,
+@@ -246,37 +392,70 @@ namespace euler
+                     static_cast<type>(y)) <= eps;
+     }
+ 
+-    template <Floating T>
++    /**
++     * @brief Is zero.
++     * @tparam T Type of lhs.
++     * @param x Value of lhs.
++     * @param eps Epsilon value. By default set to constants::epsilon.
++     * @return Is absolute value of input less than epsilon.
++     */
++    template <Numeric T>
+     constexpr inline bool is_zero(T x, T eps = constants<T>::epsilon) noexcept
+     {
+         return abs(x) <= eps;
+     }
+ 
+-    // interpolate
++    /**
++     * @brief Linear interpolation.
++     * @tparam T Type of input.
++     * @param x Value of first limit.
++     * @param y Value of second limit.
++     * @param t Interpolation parameter, must be from 0 to 1.
++     * @return Linearly interpolated value.
++     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
++     */
+     template <Floating T>
+     constexpr inline T lerp(T x, T y, T t) noexcept
+     {
+         return x + t * (y - x);
+     }
+ 
++    /**
++     * @brief Inverse linear interpolation.
++     * @tparam T Type of input.
++     * @param x Value of first limit.
++     * @param y Value of second limit.
++     * @param v Linearly interpolated value.
++     * @return Linear interpolation parameter.
++     */
+     template <Floating T>
+     constexpr inline T inverse_lerp(T x, T y, T v) noexcept
+     {
+         return safe_div(v - x, y - x);
+     }
+ 
+-    // deg-rad conversion
++    /**
++     * @brief Degrees to radians.
++     * @tparam T Type of input.
++     * @param deg Value in degrees.
++     * @return Value in radians.
++     */
+     template <Floating T>
+     constexpr inline T deg_to_rad(T deg)
+     {
+         return deg * (constants<T>::deg_to_rad);
+     }
+ 
++    /**
++     * @brief Radians to drees.
++     * @tparam T Type of input.
++     * @param rad Value in  radians.
++     * @return Value in degrees.
++     */
+     template <Floating T>
+     constexpr inline T rad_to_deg(T rad)
+     {
+         return rad * (constants<T>::rad_to_deg);
+     }
+ 
+-
+ }
+diff --git a/include/core.hpp b/include/core.hpp
+index 8215e6e..2b55782 100644
+--- a/include/core.hpp
++++ b/include/core.hpp
+@@ -1,89 +1,200 @@
++/**
++ * @file core.hpp
++ * @author Arnav Deshpande
++ *
++ * Contains core functionality used throughout the program.
++ */
++
+ #pragma once
+ 
+ #include <cmath>
+ #include <cstdint>
+ #include <type_traits>
+ 
++/// @brief Primary namespace for lib euler.
+ namespace euler
+ {
+ 
+-    // typedefs
++    /// @brief 8-bit integer.
++    /// @note Aliases std::int8_t.
+     using i8    = std::int8_t;
++
++    /// @brief 16-bit integer.
++    /// @note Aliases std::int16_t.
+     using i16   = std::int16_t;
++
++    /// @brief 32-bit integer.
++    /// @note Aliases std::int32_t.
+     using i32   = std::int32_t;
++
++    /// @brief 64-bit integer.
++    /// @note Aliases std::int64_t.
+     using i64   = std::int64_t;
+ 
+ #if defined(__SIZEOF_INT128__)
++    /// @brief Indicates existence of 128-bit integer.
++    #define EULER_INT128_EXISTS
++
++    /// @brief 128-bit integer.
++    /// @note Aliases __int128_t as it exists. 
++    /// @warning If int128 does not exist, it typedefs void.
+     using i128  = __int128_t;
+ #else
++    /// @brief 128-bit integer. 
++    /// @note Aliases void as int128 does not exist.
++    /// @warning If int128 does exist, it typedefs __int128_t.
+     using i128  = void;
+ #endif
+ 
+-    using u8    = std::int8_t;
+-    using u16   = std::int16_t;
+-    using u32   = std::int32_t;
+-    using u64   = std::int64_t;
++    /// @brief 8-bit unsigned integer.
++    /// @note Aliases std::uint8_t.
++    using u8    = std::uint8_t;
++
++    /// @brief 16-bit unsigned integer.
++    /// @note Aliases std::uint16_t.
++    using u16   = std::uint16_t;
++
++    /// @brief 32-bit unsigned integer.
++    /// @note Aliases std::uint32_t.
++    using u32   = std::uint32_t;
++
++    /// @brief 64-bit unsigned integer.
++    /// @note Aliases std::uint64_t.
++    using u64   = std::uint64_t;
+ 
+ #if defined(__SIZEOF_INT128__)
++    /// @brief 128-bit unsigned integer.
++    /// @note Aliases __uint128_t as it exists. 
++    /// @warning If uint128 does not exist, it typedefs void.
+     using u128  = __uint128_t;
+ #else
++    /// @brief 128-bit unsigned integer. 
++    /// @note Aliases void as uint128 does not exist.
++    /// @warning If uint128 does exist, it typedefs __uint128_t.
++    using u128  = void;
+ #endif
+ 
++    /// @brief 32-bit floating point.
++    /// @note Aliases float.
+     using f32   = float;
++
++    /// @brief 64-bit floating point.
++    /// @note Aliases double.
+     using f64   = double;
++
++    /// @brief 128-bit floating point.
++    /// @note Aliases long double.
+     using f128  = long double;
+ 
++    /// @brief Defines unsigned size.
++    /// @note Aliases euler::u32.
+     using size  = u32;
++
++    /// @brief Defines signed size.
++    /// @note Aliases euler::i32.
+     using ssize = i32;
+ 
++    /// @brief 8-bit signed.
++    /// @note Aliases char.
+     using byte  = char;
++
++    /// @brief 8-bit unsigned.
++    /// @note Aliases unsigned char.
+     using ubyte = unsigned char;
+ 
++    /// @brief C-style string.
++    /// @note Aliases char*.
+     using cstr  = char *;
++
++    /// @brief C-style usigned string.
++    /// @note Aliases unsigned char.
+     using ucstr = unsigned char *;
+ 
+-    // concepts
++    /**
++     * @brief Represents a numeric type.
++     * @tparam T Type to be constrained.
++     * @note Here, type bool is not considered as valid.
++     */
+     template <typename T>
+     concept Numeric = std::is_arithmetic_v<T> && !std::is_same_v<T, bool>;
+ 
++    /**
++     * @brief Represents all numerics.
++     * @tparam T Type to be constrained.
++     * @note Here, type bool is considered as valid.
++     */
+     template <typename T>
+     concept AllNumeric = std::is_arithmetic_v<T>;
+ 
++    /**
++     * @brief Represents floating points.
++     * @tparam T Type to be constrained.
++     */
+     template <typename T>
+     concept Floating = std::is_floating_point_v<T>;
+ 
++    /**
++     * @brief Represents integrals.
++     * @tparam T Type to be constrained.
++     * @note Here, type bool is not considered as valid.
++     */
+     template <typename T>
+     concept Integral = std::is_integral_v<T> && !std::is_same_v<T, bool>;
+ 
++    /**
++     * @brief Represents all integrals.
++     * @tparam T Type to be constrained.
++     * @note Here, type bool is considered as valid.
++     */
+     template <typename T>
+     concept AllIntegral = std::is_integral_v<T>;
+ 
++    /**
++     * @brief Any of the given types.
++     * @tparam T Type to be checked/constrained.
++     * @tparam Ts... All possible types T can be.
++     */
+     template <typename T, typename ...Ts>
+     concept IsAnyOf = (std::is_same_v<T, Ts> || ...);
+ 
+-    // nan
++    /**
++     * @brief Represents a floating point NaN.
++     * @tparam T Floating type.
++     * @note Equals std::numeric_limits<T>::quiet_NaN.
++     */
+     template <Floating T>
+     constexpr inline T nan_v = std::numeric_limits<T>::quiet_NaN();
+ 
+-    // float to int
++    /**
++     * @brief Converts floating point to integral.
++     * @tparam T Floating type.
++     */
+     template <Floating T>
+     struct float_to_int;
+ 
++    /// @brief Template specialization for type f32.
+     template <>
+     struct float_to_int<f32>
+     {
++        /// @brief Aliases f32.
+         using type = i32;
+     };
+ 
++    /// @brief Template specialization for type f64.
+     template <>
+     struct float_to_int<f64>
+     {
++        /// @brief Aliases f64.
+         using type = i64;
+     };
+ 
++    /// @brief Template specialization for type f128.
++    /// @warning int128 must exist for it to behave properly.
+     template <>
+     struct float_to_int<f128>
+     {
++        /// @brief Aliases int128 if it exists, otherwise void.
++        /// @warning int128 must exist for it to behave properly.
+         using type =
+ #if defined(__SIZEOF_INT128__)
+             i128
+@@ -93,28 +204,43 @@ namespace euler
+             ;
+     };
+ 
++    /**
++     * @brief Converts floating types to integral type.
++     * @tparam T Floating type.
++     */
+     template <Floating T>
+     using float_to_int_t = typename float_to_int<T>::type;
+ 
+-    // int to float
++    /**
++     * @brief Converts integral to floating point.
++     * @tparam T Integral type.
++     */
+     template <Integral T>
+     struct int_to_float;
+ 
++    /// @brief Template specialization for i32.
+     template <>
+     struct int_to_float<i32>
+     {
++        /// @brief Aliases f32.
+         using type = f32;
+     };
+ 
++    /// @brief Template specialization for i64.
+     template <>
+     struct int_to_float<i64>
+     {
++        /// @brief ALiases f64.
+         using type = f64;
+     };
+ 
++    /// @brief Template specialization for i128.
++    /// @warning int128 must exist for it to behave properly.
+     template <>
+     struct int_to_float<i128>
+     {
++        /// @brief Aliases f128 if i128 exists, else void.
++        /// @warning int128 must exist for it to behave properly.
+         using type =
+ #if defined(__SIZEOF_INT128__)
+             f128
+@@ -124,30 +250,68 @@ namespace euler
+             ;
+     };
+ 
++    /**
++     * @brief Converts integral type to floating point type.
++     * @tparam T Integral type.
++     */
+     template <Integral T>
+     using int_to_float_t = typename int_to_float<T>::type;
+ 
+-    template <Numeric T, bool = Floating<T>>
++    /**
++     * @brief Converts type to floating point type.
++     * Type is converted to floating point, if it is not floating point. Otherwise it is kept
++     * as is.
++     * @tparam T Type to convert.
++     * @tparam B Boolean to help conversion only when necessary. Equals Floating<T>.
++     */
++    template <Numeric T, bool B = Floating<T>>
+     struct to_floating_impl;
+ 
++    /**
++     * @brief Keeps floating point type as is.
++     * @tparam T Floating point type.
++     * @note Specializes to_floating_impl with T and true.
++     */
+     template <Numeric T>
+     struct to_floating_impl<T, true>
+     {
+         using type = T;
+     };
+ 
++    /**
++     * @brief Converts type to floating point type.
++     * @tparam T Non-floating point type.
++     * @note Specializes to_floating_impl with T and false.
++     */
+     template <Numeric T>
+     struct to_floating_impl<T, false>
+     {
+         using type = int_to_float_t<T>;
+     };
+ 
++    /**
++     * @brief Converts type to floating point if it isn't already.
++     * @tparam T Type to be converted.
++     */
+     template <Numeric T>
+     using to_floating_t = typename to_floating_impl<T>::type;
+ 
++    /**
++     * @brief Uses larger sized type.
++     * @tparam A First type.
++     * @tparam B Second type.
++     */
+     template <typename A, typename B>
+     using larger_t = std::conditional_t<sizeof(A) >= sizeof(B), A, B>;
+ 
++    /**
++     * @brief Promotes to floating point type.
++     * If both are integral types, it returns integral type of larger size. If even one of the parameters,
++     * is floating point, it returns floating point type of larger size.
++     * @tparam T First type.
++     * @tparam U Second type.
++     * @warning Poorly implemented, unmaintained std::common_type_t. Just use that PLEASE.
++     */
+     template <typename T, typename U>
+     struct promote_to_float
+     {
+@@ -163,6 +327,14 @@ namespace euler
+ 
+     };
+ 
++    /**
++     * @brief Promotes to floating point type.
++     * If both are integral types, it returns integral types of larger size. If even one of the parameters,
++     * is floating point, it returns floating point type of larger size.
++     * @tparam T First type.
++     * @tparam T Second type.
++     * @warning Poorly implemented, unmaintained std::common_type_t. Just use that PLEASE.
++     */
+     template <typename T, typename U>
+     using promote_to_float_t = typename promote_to_float<T, U>::type;
+ 
+diff --git a/include/macros.hpp b/include/macros.hpp
+index 6b855dd..6454e4c 100644
+--- a/include/macros.hpp
++++ b/include/macros.hpp
+@@ -1,19 +1,33 @@
++/**
++ * @file macros.hpp
++ * @author Arnav Deshpande
++ *
++ * Contains important macro definitions used in the library.
++ */
++
+ #pragma once
+ 
+ #if defined(__GNUC__)
++    /// @brief Signifies GNU compiler is used for compilation.
+     #define EULER_COMPILER_GNU
+ 
+     #if defined(__clang__)
++        /// @brief Signifies LLVM Clang compiler is used for compilation.
+         #define EULER_COMPILER_CLANG 
+     #else
++        /// @brief Signifies GNU GCC/G++ compiler is used for compilation.
+         #define EULER_COMPILER_GCC 
+     #endif
+ #elif defined(_MSC_VER)
++    /// @brief Signifies MSVC compiler is used for compilation.
+     #define EULER_COMPILER_MSVC
+ #elif defined(__INTEL_COMPILER)
++    /// @brief Signifies Intel compiler is used for compilation.
+     #define EULER_COMPILER_INTEL
+ #else
++    /// @brief Signifies that an unkown compiler is used for compilation/
+     #define EULER_COMPILER_UNKNOWN
++    #warning "EULER: Unkown compiler is used."
+ #endif
+ 
+ #if defined(EULER_LIB_SHARED)
+@@ -26,6 +40,17 @@
+     #define EULER_API
+ #endif
+ 
++/**
++ * @brief Ensures given condition is evaluated as a bool.
++ * 
++ * @par x Condition to be evaulated.
++*/
+ #define EULER_ENSURE_BOOL(x)    (!!(x))
+ 
++/**
++ * @brief Indicates that a functionality is to be implemented.
++ * Evaluates to a false static assert, functionality must be implemented to continue.
++ *
++ * @par msg Message to display.
++ */
+ #define EULER_MUST_BE_IMPLEMENTED(msg)  static_assert(false, msg)
+diff --git a/include/vector/vec.hpp b/include/vector/vec.hpp
+index 741c286..cf476b6 100644
+--- a/include/vector/vec.hpp
++++ b/include/vector/vec.hpp
+@@ -1,32 +1,64 @@
++/**
++ * @file vector/vec.hpp
++ * @author Arnav Deshpande
++ *
++ * Represents a mathematical vector according to linear algebra.
++ */
++
+ #pragma once
+ 
+ #include "core.hpp"
+ #include "common/common.hpp"
++#include <cassert>
+ #include <tuple>
+ 
++/// @brief Primary namespace of lib euler.
+ namespace euler
+ {
+ 
++    /**
++     * @brief S-dimensional vector of type T.
++     * @tparam T Data type of vector components.
++     * @tparam S Size/dimension of the vector.
++     * @note S must be greater than zero.
++     */
+     template <Numeric T, size S>
+         requires(S > 0)
+     struct vec
+     {
+-        using type = T;
+-        constexpr static size dimension = S;
++        /// @brief Data type of components of vector.
++        using data_type = T;
+ 
++        /// @brief Dimension/size of the vector.
++        constexpr static size dimension = S;
+ 
++        /// @brief Constructs an empty (null) vector.
+         constexpr vec() noexcept
+         {
+             for (size i = 0; i < S; ++i)
+                 data[i] = T(0);
+         }
+ 
++        /**
++         * @brief Value of component of vector.
++         * @param i Component number (0 to S-1).
++         * @return Value of givencomponent.
++         * @warning Bounds of parameter i are NOT checked, currently there is no graceful way
++         * to handle out of bounds value.
++         */
+         constexpr T &operator[](size i) 
+         {
+             // TODO: Custom exceptions
+             return data[i];
+         }
+ 
++        /**
++         * @brief Value of component of vector.
++         * @param i Component number (0 to S-1).
++         * @return Value of givencomponent.
++         * @warning Bounds of parameter i are NOT checked, currently there is no graceful way
++         * to handle out of bounds value.
++         */
+         constexpr const T &operator[](size i) const
+         {
+             // TODO: Custom exceptions
+@@ -34,9 +66,20 @@ namespace euler
+         }
+ 
+     protected:
++        /// @brief Vector itself.
+         T data[S];
+     };
+ 
++    /**
++     * @brief Gets the dot product.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimensions of both vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Dot product of both the vectors.
++     * @note Return type is common type of T1 and T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     constexpr inline auto dot(const vec<T1, S> &v1, const vec<T2, S> &v2) 
+         -> std::common_type_t<T1, T2>
+@@ -53,24 +96,51 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the length.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Length of the given vector.
++     * @note Since calculating length involves taking a square-root, this function is not avalaible
++     * at compile time.
++     */
+     template <Numeric T, size S>
+     inline to_floating_t<T> length(const vec<T, S> &v)
+     {
+         return std::sqrt(dot(v, v));
+     }
+ 
++    /**
++     * @brief Gets the length square.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Square of the length of the given vector.
++     * @note Since square of the length is calculated using dot product, this function is avalaible at
++     * compile time.
++     */
+     template <Numeric T, size S>
+     constexpr inline T length_sq(const vec<T, S> &v)
+     {
+         return dot(v, v);
+     }
+ 
++    /// @brief Aliases function length.
+     template <Numeric T, size S>
+     inline to_floating_t<T> magnitude(const vec<T, S> &v)
+     {
+         return length(v);
+     }
+ 
++    /**
++     * @brief Scales the vector.
++     * @tparam T Data type of the vector and scalar.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param m Scalar used to scale.
++     * @return Scaled vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline vec<T, S> scale(const vec<T, S> &v, T m)
+     {
+@@ -82,7 +152,18 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Scales the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @param v Vector.
++     * @param m Scalar used to scale.
++     * @return Scaled vector.
++     * @note Scaled vector will have common type of T, M as its data type.
++     */
+     template <Numeric T, size S, Numeric M>
++        requires(!std::is_same_v<T, M>)
+     constexpr inline auto scale(const vec<T, S> &v, M m)
+         -> vec<std::common_type_t<T, M>, S>
+     {
+@@ -96,6 +177,17 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Normalizes the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Normalized vector.
++     * @note Returned vector will have the data type euler::to_floating_t<T>.
++     * @note Since normalizing involves calculating length of vector, function is not avalaible
++     * at compile time.
++     * @warning v being null is not checked, and this case is not handled gracefully.
++     */
+     template <Numeric T, size S>
+     inline auto normalize(const vec<T, S> &v)
+         -> vec<to_floating_t<T>, S>
+@@ -106,6 +198,17 @@ namespace euler
+         return scale(v, multiplier);
+     }
+ 
++    /**
++     * @brief Normalizes the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param fallback Fallback value for division, type is euler::to_floating_t<T>. Default value is 0.
++     * @return normalized vector.
++     * @note Returned vector will have the data type euler::to_floating_t<T>.
++     * @note Since normalizing involves calculating length of vector, function is not avalaible 
++     * at compile time.
++     */
+     template <Numeric T, size S>
+     inline auto safe_normalize(
+             const vec<T, S> &v,
+@@ -115,6 +218,13 @@ namespace euler
+         return scale(v, safe_inv(length(v)));
+     }
+ 
++    /**
++     * @brief Absolute value of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Vector with absolute values of all components.
++     */
+     template <Numeric T, size S>
+     constexpr inline vec<T, S> abs(const vec<T, S> &v)
+     {
+@@ -126,6 +236,13 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Floor of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Vector with floored values of all components.
++     */
+     template <Floating T, size S>
+     constexpr inline auto floor(const vec<T, S> &v)
+         -> vec<T, S>
+@@ -138,6 +255,13 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Ceil value of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Vector with ceiled values of all components.
++     */
+     template <Floating T, size S>
+     constexpr inline auto ceil(const vec<T, S> &v)
+         -> vec<T, S>
+@@ -150,6 +274,14 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Rounded off values of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param pow Power of 10 to be rounded off to. (See euler::roundoff for more details.)
++     * @return Vector with rounded off values of all components.
++     */
+     template <Floating T, size S>
+     constexpr inline vec<T, S> roundoff(const vec<T, S> &v, i32 pow)
+     {
+@@ -161,6 +293,13 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Fractional values of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Vector with fractional values of all components.
++     */
+     template <Floating T, size S>
+     constexpr inline vec<T, S> frac(const vec<T, S> &v)
+     {
+@@ -172,12 +311,27 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Negates/reverses the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Negated/reversed vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline vec<T, S> negate(const vec<T, S> &v)
+     {
+         return scale(v, T(-1));
+     }
+ 
++    /**
++     * @brief Checks if vector is null.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param eps Epsilon value. By default set to constants::epsilon.
++     * @return Is vector null.
++     */
+     template <Numeric T, size S>
+     constexpr inline bool is_null(const vec<T, S> &v, T eps = constants<T>::epsilon)
+     {
+@@ -188,6 +342,13 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Checks if vector has atleast one nan value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Does vector have atleast one NaN value.
++     */
+     template <Floating T, size S>
+     constexpr inline bool is_nan(const vec<T, S> &v)
+     {
+@@ -198,16 +359,31 @@ namespace euler
+         return false;
+     }
+ 
++    /**
++     * @brief Checks if vector is normalized.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Is the vector normalized.
++     * @note Checking equality uses epsilon_equal with epsilon set to constants::epsilon.
++     */
+     template <Numeric T, size S>
+     constexpr inline bool is_normalized(const vec<T, S> &v)
+     {
+         return epsilon_equal(length_sq(v), T(1));
+     }
+ 
++    /**
++     * @brief Calculates sum of all components.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Sum of all components of the vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline T sum(const vec<T, S> &v)
+     {
+-        T result = 0;
++        T result = T(0);
+ 
+         for (size i = 0; i < S; ++i)
+             result += v[i];
+@@ -215,10 +391,17 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Calculates product of all components.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Product of all components of the vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline T product(const vec<T, S> &v)
+     {
+-        T result = 1;
++        T result = T(1);
+ 
+         for (size i = 0; i < S; ++i)
+             result *= v[i];
+@@ -226,6 +409,13 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the maximum component.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Maximum component in the vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline T max_component(const vec<T, S> &v)
+     {
+@@ -237,6 +427,13 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the minimum component.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Minimum component in the vector.
++     */
+     template <Numeric T, size S>
+     constexpr inline T min_component(const vec<T, S> &v)
+     {
+@@ -248,6 +445,15 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the mean of all components of the vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @return Calculated mean of all components of the vector
++     * @note Type of returned value is the floating point version of common type
++     * of T and S.
++     */
+     template <Numeric T, size S>
+     constexpr inline auto mean(const vec<T, S> &v)
+         -> to_floating_t<std::common_type_t<T, __decltype(S)>>
+@@ -260,18 +466,48 @@ namespace euler
+                     static_cast<type>(S));
+     }
+ 
++    /**
++     * @brief Gets the perpendicular vector.
++     * Returned vector is clockwise perpendicular to v and axis.
++     * @tparam T1 Data type of the vector.
++     * @tparam T2 Data type of the axis.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param axis Axis.
++     * @warning This function is deleted for all sizes. To implement this function for any S-dimensional
++     * vector, use template specialization.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto perp(
+             const vec<T1, S> &v, 
+             const vec<T2, S> &axis) 
+         -> vec<std::common_type_t<T1, T2>, S> = delete;
+ 
++    /**
++     * @brief Gets the perpendicular vector.
++     * Returned vector is counter-clockwise perpendicular to v and axis.
++     * @tparam T1 Data type of the vector.
++     * @tparam T2 Data type of the axis.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param axis Axis.
++     * @warning This function is deleted for all sizes. To implement this function for any S-dimensional
++     * vector, use template specialization.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto neg_perp(
+             const vec<T1, S> &v,
+             const vec<T2, S> &axis)
+         -> vec<std::common_type_t<T1, T2>, S> = delete;
+ 
++    /**
++     * @brief Checks if vector is component wise greater than some value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @return Is the vector component wise greater than the scalar.
++     * @note Values are first converted to common type of T, M and then compared.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline bool comp_wise_gt(const vec<T, S> &v, M m)
+     {
+@@ -286,6 +522,14 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Checks if vector is component wise greater than or equal to some value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @return Is the vector component wise greater than or equal to the scalar.
++     * @note Values are first converted to common type of T, M and then compared.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline bool comp_wise_gte(const vec<T, S> &v, M m)
+     {
+@@ -300,6 +544,14 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Checks if vector is component wise less than some value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @return Is the vector component wise less than the scalar.
++     * @note Values are first converted to common type of T, M and then compared.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline bool comp_wise_lt(const vec<T, S> &v, M m)
+     {
+@@ -314,6 +566,14 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Checks if vector is component wise less than or equal to some value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @return Is the vector component wise less than or equal to the scalar.
++     * @note Values are first converted to common type of T, M and then compared.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline bool comp_wise_lte(const vec<T, S> &v, M m)
+     {
+@@ -328,6 +588,15 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Checks if vector is component wise equal to some value.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type of the scalar.
++     * @return Is the vector component wise equal to the scalar.
++     * @note Values are first converted to common type of T, M and then compared.
++     * @note Comparison euses euler::epsilon_equal with epsilon set to constants::epsilon.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline bool comp_wise_eq(const vec<T, S> &v, M m)
+     {
+@@ -335,22 +604,41 @@ namespace euler
+ 
+         for (size i = 0; i < S; ++i)
+             if (
+-                    static_cast<type>(v[i]) !=
+-                    static_cast<type>(m))
++                    !epsilon_equal(
++                        static_cast<type>(v[i]),
++                        static_cast<type>(m)))
+                 return false;
+ 
+         return true;
+     }
+ 
++    /**
++     * @brief Gets cosine of the angle the vector makes from a particular axis.
++     * We get angle from the given axis, axis can be negative or positive. It goes as follows,
++     *       0 -> Invalid
++     *      +1 -> (+ first axis) (ex: +x-axis)
++     *      -1 -> (- first axis) (ex: -x-axis)
++     *      +2 -> (+ second axis) (ex: +y-axis)
++     *      -2 -> (- secod axis) (ex: -y-axis)
++     *      ... 
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @param v Vector.
++     * @param axis Value of axis, can be negative.
++     * @return Cosine of angle the vector makes from the axis.
++     * @note axis must be non-zero and less than S.
++     * @note This is the runtime version of the function,
++     * if axis is known at compile time use compile time version.
++     */
+     template <Numeric T, size S>
+     constexpr inline to_floating_t<T> cos_angle_from_axis(
+             const vec<T, S> &v,
+             ssize axis)
+     {
+-        // if axis number is higher than dimension of vector
+-        // or axis is zero (orign point)
+-        if (abs(axis) > S || axis == 0)
+-            return deg_to_rad<to_floating_t<T>>(90);
++        assert(
++                (axis != 0) && (axis <= S) &&
++                "TODO");
++        // TODO: Error Management
+ 
+         // axis -> 1 = x, 2 = y, 3 = z, ... 
+         // axis -> -1 = -x, 2 = -y, 3 = -z, ...
+@@ -360,11 +648,64 @@ namespace euler
+         return cos_angle;
+     }
+ 
++    /**
++     * @brief Gets cosine of the angle the vector makes from a particular axis.
++     * We get angle from the given axis, axis can be negative or positive. It goes as follows,
++     *       0 -> Invalid
++     *      +1 -> (+ first axis) (ex: +x-axis)
++     *      -1 -> (- first axis) (ex: -x-axis)
++     *      +2 -> (+ second axis) (ex: +y-axis)
++     *      -2 -> (- secod axis) (ex: -y-axis)
++     *      ... 
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam Axis Axis from which angle is to be found.
++     * @param v Vector.
++     * @return Cosine of angle the vector makes from the axis.
++     * @note axis must be non-zero and less than S.
++     * @note This is the compile time version of the function,
++     * if axis is unknown at compile time use runtime version.
++     */
++    template <Numeric T, size S, ssize Axis>
++    constexpr inline to_floating_t<T> cos_angle_from_axis(const vec<T, S> &v)
++        requires(Axis != 0 && Axis <= S)
++    {
++        // axis -> 1 = x, 2 = y, 3 = z, ... 
++        // axis -> -1 = -x, 2 = -y, 3 = -z, ...
++        to_floating_t<T> cos_angle = 
++            safe_div(static_cast<to_floating_t<T>>(v[abs(Axis) - 1]), length(v));
++
++        return cos_angle;
++    }
++    
++    /**
++     * @brief Gets the angle the vector makes from a particular axis.
++     * We get angle from the given axis, axis can be negative or positive. It goes as follows,
++     *       0 -> Invalid
++     *      +1 -> (+ first axis) (ex: +x-axis)
++     *      -1 -> (- first axis) (ex: -x-axis)
++     *      +2 -> (+ second axis) (ex: +y-axis)
++     *      -2 -> (- secod axis) (ex: -y-axis)
++     *      ... 
++     *  If axis is negative, we get angle from positive axis and then subtract it from constants::pi.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam Axis Axis from which angle is to be found.
++     * @param v Vector.
++     * @return Angle the vector makes from the axis.
++     * @note axis must be non-zero and less than S.
++     * @note This is the runtime version of the function,
++     * if axis is known at compile time use compile time version.
++     */
+     template <Numeric T, size S>
+     inline to_floating_t<T> angle_from_axis(
+             const vec<T, S> &v,
+             ssize axis)
+     {
++        assert(
++                (axis != 0) && (axis <= S) && 
++                "TODO");
++
+         auto angle_from_pve = std::acos(cos_angle_from_axis(v, axis));
+ 
+         return
+@@ -373,6 +714,47 @@ namespace euler
+                 constants<to_floating_t<T>>::pi - angle_from_pve;
+     }
+ 
++    /**
++     * @brief Gets the angle the vector makes from a particular axis.
++     * We get angle from the given axis, axis can be negative or positive. It goes as follows,
++     *       0 -> Invalid
++     *      +1 -> (+ first axis) (ex: +x-axis)
++     *      -1 -> (- first axis) (ex: -x-axis)
++     *      +2 -> (+ second axis) (ex: +y-axis)
++     *      -2 -> (- secod axis) (ex: -y-axis)
++     *      ... 
++     *  If axis is negative, we get angle from positive axis and then subtract it from constants::pi.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam Axis Axis from which angle is to be found.
++     * @param v Vector.
++     * @return Angle the vector makes from the axis in radians.
++     * @note axis must be non-zero and less than S.
++     * @note This is the compile time version of the function,
++     * if axis is unknown at compile time use runtime version.
++     */
++    template <Numeric T, size S, ssize Axis>
++        requires(Axis != 0 && Axis <= S)
++    inline to_floating_t<T> angle_from_axis(const vec<T, S> &v)
++    {
++        auto angle_from_pve = std::acos(cos_angle_from_axis<Axis>(v));
++        
++        return
++            (Axis > 0) ? 
++                angle_from_pve :
++                constants<to_floating_t<T>>::pi - angle_from_pve;
++    }
++
++    /**
++     * @brief Gets the sum of vectors.
++     * Takes in a variadic amount of vectors and adds them all up.
++     * @tparam Vecs... Type of different vectors you want to add.
++     * @param vecs... All the different vectors you want to add.
++     * @return Resultant sum of the vectors.
++     * @note The returned vector will have data type as common type of data types of all input vectors.
++     * @warning Number of input vectors must be greater than 1.
++     * @warning All input vectors must have the same dimension.
++     */
+     template <typename ...Vecs>
+         requires(sizeof...(Vecs) > 1)
+     constexpr inline auto add(const Vecs &...vecs)
+@@ -389,7 +771,7 @@ namespace euler
+         using type = 
+             std::common_type_t<
+                 typename
+-                    std::remove_cvref_t<Vecs>::type...>;
++                    std::remove_cvref_t<Vecs>::data_type...>;
+ 
+         vec<type, dim> result;
+ 
+@@ -399,6 +781,16 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the difference of vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Difference of both vectors.
++     * @note Returned vector will have data type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     constexpr inline auto sub(
+             const vec<T1, S> &v1,
+@@ -416,6 +808,16 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the absolute difference of vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Absolute difference of both vectors.
++     * @note Returned vector will have data type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     constexpr inline auto diff(
+             const vec<T1, S> &v1,
+@@ -434,6 +836,16 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the component wise product of the vectors.
++     * Takes in a variadic amount of vectors and multiplies them all to get the final vector.
++     * @tparam Vecs... Type of different vectors you want to multiply.
++     * @param vecs... All the different vectors you want to multiply.
++     * @return Resultant vector where components are calculated by multiplying all input vectors.
++     * @note The returned vector will have data type as common type of data types of all input vectors.
++     * @warning Number of input vectors must be greater than 1.
++     * @warning All input vectors must have the same dimension.
++     */
+     template <typename ...Vecs>
+         requires(sizeof...(Vecs) > 1)
+     constexpr inline auto mult(const Vecs &...vecs)
+@@ -450,7 +862,7 @@ namespace euler
+ 
+         using type = 
+             std::common_type_t<
+-                typename std::remove_cvref_t<Vecs>::type...>;
++                typename std::remove_cvref_t<Vecs>::data_type...>;
+ 
+         vec<type, dim> result;
+ 
+@@ -461,12 +873,33 @@ namespace euler
+         return result;
+     }
+ 
+-    // TODO: Look into if you want to delete a generic cross
++    /**
++     * @brief Gets the cross product of two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Cross product of both vectors, (v1 X v2).
++     * @warning This function is marked delete, use only specialized functions for different 
++     * dimensions where cross product is valid.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     auto cross(
+             const vec<T1, S> &v1,
+             const vec<T2, S> &v2) -> vec<std::common_type_t<T1, T2>,  S> = delete;
+ 
++    /**
++     * @brief Gets the distance between two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Distance between both the vectors.
++     * @note The returned type is the floating point version of common type of T1, T2.
++     * @note Since distance involes taking a square root, this function is not  at compile time.
++     */
+     template <typename T1, typename T2, size S>
+     inline auto distance(
+             const vec<T1, S> &v1,
+@@ -482,6 +915,17 @@ namespace euler
+         return std::sqrt(result);
+     }
+ 
++    /**
++     * @brief Gets the square of distance between two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Square of distance between both the vectors.
++     * @note The returned type is the floating point version of common type of T1, T2.
++     * @note This version of distance is avalaible at compile time.
++     */
+     template <typename T1, typename T2, size S>
+     constexpr inline auto distance_sq(
+             const vec<T1, S> &v1,
+@@ -497,6 +941,16 @@ namespace euler
+         return result;
+     }   
+ 
++    /**
++     * @brief Gets the cosine of angle between two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Cosine of angle between the two vectors.
++     * @note Returned type is the floating point version of the larger type between T1 and T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto cos_angle_bw(
+             const vec<T1, S> &v1,
+@@ -512,14 +966,32 @@ namespace euler
+                     static_cast<type>(length(v2)));
+     }
+ 
++    /**
++     * @brief Gets the angle between two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @return Angle between both the vectors in radians.
++     * @note Returned type is the floating point version of larger type between T1 and T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+-    inline to_floating_t<larger_t<T1, T2>> angle_bw(
++    inline auto angle_bw(
+             const vec<T1, S> &v1,
+-            const vec<T2, S> &v2)
++            const vec<T2, S> &v2) -> to_floating_t<larger_t<T1, T2>>
+     {
+         return std::acos(cos_angle_bw(v1, v2));
+     }
+ 
++    /**
++     * @brief Checks if given vectors are equal.
++     * @tparam First First vector type.
++     * @tparam Rest... Rest of the vector types.
++     * @param first First vector.
++     * @param rest... Rest of the vectors.
++     * @return If all given vectors are equal.
++     * @note Number of vector inputs in Rest must be greater than zero.
++     * @note All values are converted to common type of data types of all vectors and then compared.
++     */
+     template <typename First, typename ...Rest> // TODO: Add vector concept
+         requires(sizeof...(Rest) > 0)
+     constexpr inline bool equal(const First &first, const Rest &...rest)
+@@ -532,8 +1004,8 @@ namespace euler
+ 
+         using type = 
+             std::common_type_t<
+-                typename std::remove_cvref_t<First>::type,
+-                typename std::remove_cvref_t<Rest>::type...>;
++                typename std::remove_cvref_t<First>::data_type,
++                typename std::remove_cvref_t<Rest>::data_type...>;
+ 
+         for (size i = 0; i < dim; ++i)
+         {
+@@ -550,6 +1022,16 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Epsilon equal.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @param eps Epsilon value, type is common type of T1, T2. By default set to constants::epsilon.
++     * @return Are vectors equal in given epsilon value.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     constexpr inline bool equal_epsilon(
+             const vec<T1, S> &v1,
+@@ -570,6 +1052,15 @@ namespace euler
+         return true;
+     }
+ 
++    /**
++     * @brief Gets the projection of one vector over another.
++     * @tparam T1 Data type of the vector you want to project.
++     * @tparam T2 Data type of the vector you want to project on.
++     * @param of Vector you want to project.
++     * @param on Vector you want to project on.
++     * @return Projected vector.
++     * @note Returned vector has data type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto project(const vec<T1, S> &of, const vec<T2, S> &on)
+         -> vec<std::common_type_t<T1, T2>, S>
+@@ -583,6 +1074,15 @@ namespace euler
+         return scale(on, multiplier);
+     }
+ 
++    /**
++     * @brief Gets the length of projection of one vector over another.
++     * @tparam T1 Data type of the vector you want to project.
++     * @tparam T2 Data type of the vector you want to project on.
++     * @param of Vector you want to project.
++     * @param on Vector you want to project on.
++     * @return Length of projected vector.
++     * @note Returned value has type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto project_length(
+             const vec<T1, S> &of,
+@@ -591,6 +1091,16 @@ namespace euler
+         return length(project(of, on));
+     }
+ 
++    /**
++     * @brief Gets the rejection vector of one vector over another.
++     * Rejection Fector of Of vector on On vector = Of vector - Projection of Of vector on On vector.
++     * @tparam T1 Data type of the vector you want to reject.
++     * @tparam T2 Data type of the vector you want to reject on.
++     * @param of Vector you want to reject.
++     * @param on Vector you want to reject on.
++     * @return Rejected vector.
++     * @note Returned vector will have the data type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto reject(const vec<T1, S> &of, const vec<T2, S> &on)
+         -> vec<std::common_type_t<T1, T2>, S>
+@@ -598,6 +1108,16 @@ namespace euler
+         return sub(of, project(of, on));
+     }
+ 
++    /**
++     * @brief Gets the length of rejection of one vector over another.
++     * Rejection Fector of Of vector on On vector = Of vector - Projection of Of vector on On vector.
++     * @tparam T1 Data type of the vector you want to reject.
++     * @tparam T2 Data type of the vector you want to reject on.
++     * @param of Vector you want to reject.
++     * @param on Vector you want to reject on.
++     * @return Length of rejected vector.
++     * @note Returned value has type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2, size S>
+     inline auto reject_length(
+             const vec<T1, S> &of, 
+@@ -606,7 +1126,20 @@ namespace euler
+         return length(reject(of, on));
+     }
+ 
+-    template <Numeric T1, Numeric T2, Floating T, size S>
++    /**
++     * @brief Gets the linear interpolation of two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @tparam T Data type of interpolation parameter.
++     * @param v1 First limit vector.
++     * @param v2 Second limit vector.
++     * @param t Interpolation parameter, must be from 0 to 1.
++     * @return Interpolated vector.
++     * @note Returned vector will have the data type as common type of T1, T2, T.
++     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
++     */
++    template <Numeric T1, Numeric T2, size S, Floating T>
+     constexpr inline auto lerp(
+             const vec<T1, S> &v1,
+             const vec<T2, S> &v2,
+@@ -627,7 +1160,20 @@ namespace euler
+         return result;
+     }
+ 
+-    template <Numeric T1, Numeric T2, Floating T, size S>
++    /**
++     * @brief Gets the nomralized linear interpolation of two vectors.
++     * @tparam T1 Data type of the first vector.
++     * @tparam T2 Data type of the second vector.
++     * @tparam S Dimension of both the vectors.
++     * @tparam T Data type of interpolation parameter.
++     * @param v1 First limit vector.
++     * @param v2 Second limit vector.
++     * @param t Interpolation parameter, must be from 0 to 1.
++     * @return Normalized interpolated vector.
++     * @note Returned vector will have the data type as floating point version of common type of T1, T2, T.
++     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
++     */
++    template <Numeric T1, Numeric T2, size S, Floating T>
+     inline auto nlerp(
+             const vec<T1, S> &v1,
+             const vec<T2, S> &v2,
+@@ -636,6 +1182,15 @@ namespace euler
+         return normalize(lerp(v1, v2, t));
+     }
+ 
++    /**
++     * @brief Gets the component wise maximized vector.
++     * Each component is the max value from all corresponding vector values of the same component.
++     * @tparam Vecs... Types of all input vectors.
++     * @param vecs... All input vectors.
++     * @return Component wise maximized vector of all input vectors.
++     * @note Number of input vecs given must be greater than 1.
++     * @note Return vector will have the data type as common type of data types of input vectors.
++     */
+     template <typename ...Vecs>
+         requires(sizeof...(Vecs) > 1)
+     constexpr inline auto max(const Vecs &...vecs)
+@@ -651,7 +1206,7 @@ namespace euler
+ 
+         using type =
+             std::common_type_t<
+-                typename std::remove_cvref_t<Vecs>::type...>;
++                typename std::remove_cvref_t<Vecs>::data_type...>;
+ 
+         vec<type, dim> result;
+ 
+@@ -661,6 +1216,15 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Gets the component wise minimized vector.
++     * Each component is the min value from all corresponding vector values of the same component.
++     * @tparam Vecs... Types of all input vectors.
++     * @param vecs... All input vectors.
++     * @return Component wise minimized vector of all input vectors.
++     * @note Number of input vecs given must be greater than 1.
++     * @note Return vector will have the data type as common type of data types of input vectors.
++     */
+     template <typename ...Vecs>
+         requires(sizeof...(Vecs) > 1)
+     constexpr inline auto min(const Vecs &...vecs)
+@@ -686,7 +1250,19 @@ namespace euler
+         return result;
+     }
+ 
+-    template <Numeric T, Numeric Min, Numeric Max, size S>
++    /**
++     * @brief Clamps components of the given vector.
++     * @tparam T Data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam Min Data type of minimum value.
++     * @tparam Max Data type of maximum value.
++     * @param v Vector.
++     * @param min Minimum value.
++     * @param max Maximum value.
++     * @return Vector with all components clamped as per given limits.
++     * @note Returned vector will have data type as common type of T, Min, Max.
++     */
++    template <Numeric T, size S, Numeric Min, Numeric Max>
+     constexpr inline auto clamp(
+             const vec<T, S> &v,
+             Min min,
+@@ -702,6 +1278,15 @@ namespace euler
+         return result;
+     }
+ 
++    /**
++     * @brief Casts the given vector into vector of another data type.
++     * @tparam T Initial data type of the vector.
++     * @tparam S Dimension of the vector.
++     * @tparam M Data type to be casted as.
++     * @param v Vector.
++     * @return Vector with casted data type.
++     * @note static_cast is used for casting.
++     */
+     template <Numeric T, size S, Numeric M>
+     constexpr inline vec<M, S> cast(const vec<T, S> &v)
+     {
+@@ -715,6 +1300,17 @@ namespace euler
+     
+ }
+ 
++/**
++ * @brief Adds two vectors.
++ * @tparam T1 Data type of the first vector.
++ * @tparam T2 Data type of the second vector.
++ * @tparam S Dimension of both the vectors.
++ * @param v1 First vector.
++ * @param v2 Second vector.
++ * @return Resultant sum of both the vectors.
++ * @note Returned vector has data type as common type of T1, T2.
++ * @note Aliases euler::add.
++ */
+ template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+ constexpr inline auto operator+(
+         const euler::vec<T1, S> &v1,
+@@ -723,6 +1319,17 @@ constexpr inline auto operator+(
+     return euler::add(v1, v2);
+ }
+ 
++/**
++ * @brief Subtracts two vectors.
++ * @tparam T1 Data type of the first vector.
++ * @tparam T2 Data type of the second vector.
++ * @tparam S Dimension of both the vectors.
++ * @param v1 First vector.
++ * @param v2 Second vector.
++ * @return Difference of both the vectors.
++ * @note Returned vector has data type as common type of T1, T2.
++ * @note Aliases euler::sub.
++ */
+ template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+ constexpr inline auto operator-(
+         const euler::vec<T1, S> &v1,
+@@ -731,6 +1338,17 @@ constexpr inline auto operator-(
+     return euler::sub(v1, v2);
+ }
+ 
++/**
++ * @brief Multiplies two vectors.
++ * @tparam T1 Data type of the first vector.
++ * @tparam T2 Data type of the second vector.
++ * @tparam S Dimension of both the vectors.
++ * @param v1 First vector.
++ * @param v2 Second vector.
++ * @return Resultant product both the vectors.
++ * @note Returned vector has data type as common type of T1, T2.
++ * @note Aliases euler::mult.
++ */
+ template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+ constexpr inline auto operator*(
+         const euler::vec<T1, S> &v1,
+@@ -739,6 +1357,16 @@ constexpr inline auto operator*(
+     return euler::mult(v1, v2);
+ }
+ 
++/**
++ * @brief Checks if two vectors are equal.
++ * @tparam T1 Data type of the first vector.
++ * @tparam T2 Data type of the second vector.
++ * @tparam S Dimension of both the vectors.
++ * @param v1 First vector.
++ * @param v2 Second vector.
++ * @return If the two vectors are equal.
++ * @note Aliases euler::equal.
++ */
+ template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+ constexpr inline bool operator==(
+         const euler::vec<T1, S> &v1,
+@@ -747,6 +1375,16 @@ constexpr inline bool operator==(
+     return euler::equal(v1, v2);
+ }
+ 
++/**
++ * @brief Checks if two vectors are unequal.
++ * @tparam T1 Data type of the first vector.
++ * @tparam T2 Data type of the second vector.
++ * @tparam S Dimension of both the vectors.
++ * @param v1 First vector.
++ * @param v2 Second vector.
++ * @return If the two vectors are unequal.
++ * @note Uses euler::equal.
++ */
+ template <euler::Numeric T1, euler::Numeric T2, euler::size S>
+ constexpr inline bool operator!=(
+         const euler::vec<T1, S> &v1,
+@@ -755,6 +1393,16 @@ constexpr inline bool operator!=(
+     return !euler::equal(v1, v2);
+ }
+ 
++/**
++ * @brief Checks if vector is component-wise greater than a scalar.
++ * @tparam T Data type of the vector.
++ * @tparam S Dimension of the vector.
++ * @tparam M Data type of the scalar.
++ * @param v Vector.
++ * @param m Scalar.
++ * @return If the vector is component wise greater than the scalar.
++ * @note Aliases euler::comp_wise_gt.
++ */
+ template <euler::Numeric T, euler::size S, euler::Numeric M>
+ constexpr inline bool operator>>(
+         const euler::vec<T, S> &v,
+@@ -763,6 +1411,16 @@ constexpr inline bool operator>>(
+     return euler::comp_wise_gt(v, m);
+ }
+ 
++/**
++ * @brief Checks if vector is component-wise greater than or equal to a scalar.
++ * @tparam T Data type of the vector.
++ * @tparam S Dimension of the vector.
++ * @tparam M Data type of the scalar.
++ * @param v Vector.
++ * @param m Scalar.
++ * @return If the vector is component wise greater than or equal to the scalar.
++ * @note Aliases euler::comp_wise_gte.
++ */
+ template <euler::Numeric T, euler::size S, euler::Numeric M>
+ constexpr inline bool operator>=(
+         const euler::vec<T, S> &v,
+@@ -771,6 +1429,16 @@ constexpr inline bool operator>=(
+     return euler::comp_wise_gte(v, m);
+ }
+ 
++/**
++ * @brief Checks if vector is component-wise less than a scalar.
++ * @tparam T Data type of the vector.
++ * @tparam S Dimension of the vector.
++ * @tparam M Data type of the scalar.
++ * @param v Vector.
++ * @param m Scalar.
++ * @return If the vector is component wise less than the scalar.
++ * @note Aliases euler::comp_wise_lt.
++ */
+ template <euler::Numeric T, euler::size S, euler::Numeric M>
+ constexpr inline bool operator<<(
+         const euler::vec<T, S> &v,
+@@ -779,6 +1447,16 @@ constexpr inline bool operator<<(
+     return euler::comp_wise_lte(v, m);
+ }
+ 
++/**
++ * @brief Checks if vector is component-wise less than or equal to a scalar.
++ * @tparam T Data type of the vector.
++ * @tparam S Dimension of the vector.
++ * @tparam M Data type of the scalar.
++ * @param v Vector.
++ * @param m Scalar.
++ * @return If the vector is component wise less than or equal to the scalar.
++ * @note Aliases euler::comp_wise_lte.
++ */
+ template <euler::Numeric T, euler::size S, euler::Numeric M>
+ constexpr inline bool operator<=(
+         const euler::vec<T, S> &v,
+@@ -787,6 +1465,16 @@ constexpr inline bool operator<=(
+     return euler::comp_wise_lte(v, m);
+ }
+ 
++/**
++ * @brief Checks if vector is component-wise equal to a scalar.
++ * @tparam T Data type of the vector.
++ * @tparam S Dimension of the vector.
++ * @tparam M Data type of the scalar.
++ * @param v Vector.
++ * @param m Scalar.
++ * @return If the vector is component wise equal to the scalar.
++ * @note ALiases euler::comp_wise_eq.
++ */
+ template <euler::Numeric T, euler::size S, euler::Numeric M>
+ constexpr inline bool operator==(
+         const euler::vec<T, S> &v,
+diff --git a/include/vector/vec2.hpp b/include/vector/vec2.hpp
+index f44dafc..bbe4720 100644
+--- a/include/vector/vec2.hpp
++++ b/include/vector/vec2.hpp
+@@ -1,20 +1,39 @@
++/**
++ * @file vector/vec2.hpp
++ * @author Arnav Deshpande
++ *
++ * Contains function specializations for vector of size 2.
++ */
++
+ #pragma once
+ 
+ #include "core.hpp"
+ #include "vector/vec.hpp"
+ 
++/// @brief Primary namespace for lib euler.
+ namespace euler
+ {
+ 
++    /**
++     * @brief Represents a vector of size 2.
++     * Inherits from euler::vec to implement a 2-dimensional vector.
++     * @tparam T Data type of vector components.
++     */
+     template <Numeric T>
+     struct vec2 : vec<T, 2>
+     {
++        /// @brief Constructs a null vec2.
+         constexpr vec2() noexcept
+             :
+             vec<T, 2>()
+         {
+         }
+ 
++        /**
++         * @brief Constructs a vec2.
++         * @param x X-component.
++         * @param y Y-component.
++         */
+         constexpr vec2(T x, T y) noexcept
+             :
+             vec<T, 2>()
+@@ -23,6 +42,10 @@ namespace euler
+             this->data[1] = y;
+         }
+ 
++        /**
++         * @brief Constructs a vec2.
++         * @param xy Single value for both components.
++         */
+         constexpr vec2(T xy) noexcept   
+             :
+             vec<T, 2>()
+@@ -31,54 +54,114 @@ namespace euler
+                 this->data[1] = xy;
+         }
+ 
++        /// @brief Default copy constructor.
+         constexpr vec2(const vec2<T> &other) noexcept = default;
++
++        /// @brief Default move constructor.
+         constexpr vec2(vec2<T> &&other) noexcept = default;
++
++        /// @brief Default copy assignment operator.
+         constexpr vec2 &operator=(const vec2<T> &other) noexcept = default;
++
++        /// @brief Default move assignment operator.
+         constexpr vec2 &operator=(vec2<T> &&other) noexcept = default;
+ 
++        /// @brief Default destructor.
+         ~vec2() noexcept = default;
+ 
++        /**
++         * @brief Gets the x-component.
++         * @return X-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr T &x() noexcept
+         {
+             return this->data[0];
+         }
+ 
++        /**
++         * @brief Gets the y-component.
++         * @return Y-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr T &y() noexcept
+         {
+             return this->data[1];
+         }
+ 
++        /**
++         * @brief Gets the x-component.
++         * @return X-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr const T &x() const noexcept 
+         {
+             return this->data[0];
+         }
+ 
++        /**
++         * @brief Gets the y-component.
++         * @return Y-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr const T &y() const noexcept
+         {
+             return this->data[1];
+         }
+ 
++        /**
++         * @brief Gets a null vector.
++         * @return 2-dimensional null vector.
++         */
+         constexpr static vec2<T> null() noexcept
+         {
+             return vec2<T>(0);
+         }
+ 
++        /**
++         * @brief Gets the x-axis.
++         * @return 2-dimensional i-hat.
++         */
+         constexpr static vec2<T> x_axis() noexcept
+         {
+             return vec2<T>(1, 0);
+         }
+ 
++        /**
++         * @brief Gets the y-axis.
++         * @return 2-dimensional j-hat.
++         */
+         constexpr static vec2<T> y_axis() noexcept
+         {
+             return vec2<T>(0, 1);
+         }
+     };
+ 
++    /// @brief 2-dimensional vector of i32.
++    /// @note Aliases vec2<i32>.
+     using ivec2 = vec2<i32>;
++
++    /// @brief 2-dimensional vector of u32.
++    /// @note Aliases vec2<u32>.
+     using uvec2 = vec2<u32>;
++
++    /// @brief 2-dimensional vector of f32.
++    /// @note Aliases vec2<f32>.
+     using fvec2 = vec2<f32>;
++
++    /// @brief 2-dimensional vector of f64.
++    /// @note Aliases vec2<f32>.
+     using dvec2 = vec2<f64>;
+ 
++    /**
++     * @brief Returns value of the cross product.
++     * @tparam T1 Type of the first vector.
++     * @tparam T2 Type of the second vector.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return Scalar value of cross product of the two vectors.
++     * @note Scalar would be of common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2>
+     constexpr inline auto cross(
+             const vec2<T1> &v1,
+@@ -93,12 +176,24 @@ namespace euler
+                 static_cast<type>(v2.x());
+     }
+ 
++    /**
++     * @brief Returns perpendicular vector.
++     * @tparam T Type of vector.
++     * @param v Vector.
++     * @return Clockwise perpendicular vector.
++     */
+     template <Numeric T>
+     constexpr inline vec2<T> perp(const vec2<T> &v)
+     {
+         return vec2<T>(v.y(), -v.x());
+     }
+ 
++    /**
++     * @brief Returns perpendicular vector.
++     * @tparam T Type of vector.
++     * @param v Vector.
++     * @return Counter-Clockwise perpendicular vector.
++     */
+     template <Numeric T>
+     constexpr inline vec2<T> neg_perp(const vec2<T> &v)
+     {
+diff --git a/include/vector/vec3.hpp b/include/vector/vec3.hpp
+index f680202..09cd98f 100644
+--- a/include/vector/vec3.hpp
++++ b/include/vector/vec3.hpp
+@@ -1,21 +1,41 @@
++/**
++ * @file vector/vec3.hpp
++ * @author Arnav Deshpande
++ *
++ * Contains function specializations for vector of size 3.
++ */
++
+ #pragma once
+ 
+ #include "core.hpp"
+ #include "vector/vec.hpp"
+ #include "vector/vec2.hpp"
+ 
++/// @brief Primary namespace for lib euler.
+ namespace euler
+ {
+ 
++    /**
++     * @brief Represents a vector of size 3.
++     * Inherits from euler::vec to implement a 3-dimensional vector.
++     * @tparam T Data type of vector components.
++     */
+     template <Numeric T>
+     struct vec3 : vec<T, 3>
+     {
++        /// @brief Constructs a null vec3.
+         constexpr vec3() noexcept
+             :
+             vec<T, 3>()
+         {
+         }
+ 
++        /**
++         * @brief Constructs a vec3.
++         * @param x X-component.
++         * @param y Y-component.
++         * @param z Z-component.
++         */
+         constexpr vec3(T x, T y, T z) noexcept
+             :
+             vec<T, 3>()
+@@ -25,6 +45,10 @@ namespace euler
+             this->data[2] = z;
+         }
+ 
++        /**
++         * @brief Constructs a vec3.
++         * @param xyz Single value for all components.
++         */
+         constexpr vec3(T xyz) noexcept
+             :
+             vec<T, 3>()
+@@ -34,6 +58,11 @@ namespace euler
+                 this->data[2] = xyz;
+         }
+ 
++        /**
++         * @brief Constructs a vec3.
++         * @param xy Vec2 value containing x and y component.
++         * @param z Z-component, default value set to zero.
++         */
+         constexpr vec3(const vec2<T> &xy, T z = 0) noexcept
+             :
+             vec<T, 3>()
+@@ -43,99 +72,197 @@ namespace euler
+             this->data[2] = z;
+         }
+ 
++        /// @brief Default copy constructor.
+         constexpr vec3(const vec3<T> &other) noexcept = default;
++
++        /// @brief Default move constructor.
+         constexpr vec3(vec3<T> &&other) noexcept = default;
++
++        /// @brief Default copy assignment operator.
+         constexpr vec3 &operator=(const vec3<T> &other) noexcept = default;
++
++        /// @brief Default move assignment operator.
+         constexpr vec3 &operator=(vec3<T> &&other) noexcept = default;
+ 
++        /// @brief Default destructor.
+         ~vec3() noexcept = default;
+ 
++        /**
++         * @brief Gets the x-component.
++         * @return X-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr T &x() noexcept
+         {
+             return this->data[0];
+         }
+ 
++        /**
++         * @brief Gets the y-component.
++         * @return Y-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr T &y() noexcept
+         {
+             return this->data[1];
+         }
+ 
++        /**
++         * @brief Gets the z-component.
++         * @return Z-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr T &z() noexcept
+         {
+             return this->data[2];
+         }
+ 
++        /**
++         * @brief Gets the x-component.
++         * @return X-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr const T &x() const noexcept
+         {
+             return this->data[0];
+         }
+ 
++        /**
++         * @brief Gets the y-component.
++         * @return Y-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr const T &y() const noexcept
+         {
+             return this->data[1];
+         }
+ 
++        /**
++         * @brief Gets the z-component.
++         * @return Z-component.
++         * @note Guaranteed not to throw.
++         */
+         constexpr const T &z() const noexcept
+         {
+             return this->data[2];
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of xy-components.
++         */
+         constexpr vec2<T> xy() const noexcept
+         {
+             return vec2<T>(this->data[0], this->data[1]);
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of yx-components.
++         */
+         constexpr vec2<T> yx() const noexcept
+         {
+             return vec2<T>(this->data[1], this->data[0]);
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of yz-components.
++         */
+         constexpr vec2<T> yz() const noexcept
+         {
+             return vec2<T>(this->data[1], this->data[2]);
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of zy-components.
++         */
+         constexpr vec2<T> zy() const noexcept
+         {
+             return vec2<T>(this->data[2], this->data[1]);
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of xz-components.
++         */
+         constexpr vec2<T> xz() const noexcept
+         {
+             return vec2<T>(this->data[0], this->data[2]);
+         }
+ 
++        /**
++         * @brief Swizzles the vector.
++         * @return Vec2 of zx-components.
++         */
+         constexpr vec2<T> zx() const noexcept
+         {
+             return vec2<T>(this->data[2], this->data[0]);
+         }
+ 
++        /**
++         * @brief Gets a null vector.
++         * @return 3-dimensional null vector.
++         */
+         constexpr static vec3<T> null() noexcept
+         {
+             return vec3<T>(0);
+         }
+ 
++        /**
++         * @brief Gets the x-axis.
++         * @return 3-dimensional i-hat.
++         */
+         constexpr static vec3<T> x_axis() noexcept
+         {
+             return vec3<T>(1, 0, 0);
+         }
+ 
++        /**
++         * @brief Gets the y-axis.
++         * @return 3-dimensional j-hat.
++         */
+         constexpr static vec3<T> y_axis() noexcept
+         {
+             return vec3<T>(0, 1, 0);
+         }
+ 
++        /**
++         * @brief Gets the z-axis.
++         * @return 3-dimensional k-hat.
++         */
+         constexpr static vec3<T> z_axis() noexcept
+         {
+             return vec3<T>(0, 0, 1);
+         }
+     };
+ 
++    /// @brief 3-dimensional vector of i32.
++    /// @note Aliases vec3<i32>.
+     using ivec3 = vec3<i32>;
++
++    /// @brief 3-dimensional vector of u32.
++    /// @note Aliases vec3<u32>.
+     using uvec3 = vec3<u32>;
++
++    /// @brief 3-dimensional vector of f32.
++    /// @note Aliases vec3<f32>.
+     using fvec3 = vec3<f32>;
++
++    /// @brief 3-dimensional vector of f64.
++    /// @note Aliases vec3<f64>.
+     using dvec3 = vec3<f64>;
+ 
++    /**
++     * @brief Returns the cross product.
++     * @tparam T1 Type of the first vector.
++     * @tparam T2 Type of the second vector.
++     * @param v1 First vector.
++     * @param v2 Second vector.
++     * @return 3-dimensional vector cross product of the two vector.
++     * @note Vector would have type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2>
+     constexpr inline auto cross(
+             const vec3<T1> &v1,
+@@ -154,22 +281,44 @@ namespace euler
+                     cv1.x() * cv2.y() - cv1.y() * cv2.x());
+     }
+ 
++    /**
++     * @brief Returns perpendicular vector.
++     * Perpendicular is calculated w.r.t some axis.
++     * @tparam T1 Type of vector.
++     * @tparam T2 Type of axis.
++     * @param v Vector.
++     * @param axis Axis.
++     * @return Perpendicular vector to v.
++     * @note Normalized cross product v X axis is returned.
++     * @note Returned vector has type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2>
+     inline auto perp(
+-            const vec3<T1> &v1,
+-            const vec3<T2> &v2)
++            const vec3<T1> &v,
++            const vec3<T2> &axis)
+         -> vec3<to_floating_t<std::common_type_t<T1, T2>>>
+     {
+-        return normalize(cross(v1, v2));
++        return normalize(cross(v, axis));
+     }
+ 
++    /**
++     * @brief Returns perpendicular vector.
++     * Perpendicular is calculated w.r.t some axis.
++     * @tparam T1 Type of vector.
++     * @tparam T2 Type of axis.
++     * @param v Vector.
++     * @param axis Axis.
++     * @return Perpendicular vector to v.
++     * @note Normalized cross product axis X v is returned, negative of perpendicular of vector in perp.
++     * @note Returned vector has type as common type of T1, T2.
++     */
+     template <Numeric T1, Numeric T2>
+     inline auto neg_perp(
+-            const vec3<T1> &v1,
+-            const vec3<T2> &v2)
++            const vec3<T1> &v,
++            const vec3<T2> &axis)
+         -> vec3<to_floating_t<std::common_type_t<T1, T2>>>
+     {
+-        return neg(perp(v1, v2));
++        return neg(perp(v, axis));
+     }
+ 
+ }
+diff --git a/tests/vec/main.cpp b/tests/vec/main.cpp
+index 478ba6c..81fd651 100644
+--- a/tests/vec/main.cpp
++++ b/tests/vec/main.cpp
+@@ -107,7 +107,7 @@ void test_reduction()
+ 
+     TEST("sum", sum(v)==6);
+     TEST("product", product(v)==6);
+-    TEST("mean", equal_epsilon(mean(v),2.0));
++    TEST("mean", equal_epsilon(mean(v), 2.0));
+ }
+ 
+ // Min / max components

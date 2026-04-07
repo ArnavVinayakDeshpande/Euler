@@ -107,7 +107,7 @@ void test_reduction()
 
     TEST("sum", sum(v)==6);
     TEST("product", product(v)==6);
-    TEST("mean", equal_epsilon(mean(v),2.0));
+    TEST("mean", equal_epsilon(mean(v), 2.0));
 }
 
 // Min / max components

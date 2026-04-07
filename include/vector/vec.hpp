@@ -102,7 +102,7 @@ namespace euler
      * @tparam S Dimension of the vector.
      * @param v Vector.
      * @return Length of the given vector.
-     * @note Since calculating length involves taking a square-root, this function is not avaiable
+     * @note Since calculating length involves taking a square-root, this function is not avalaible
      * at compile time.
      */
     template <Numeric T, size S>
@@ -117,7 +117,7 @@ namespace euler
      * @tparam S Dimension of the vector.
      * @param v Vector.
      * @return Square of the length of the given vector.
-     * @note Since square of the length is calculated using dot product, this function is avaiable at
+     * @note Since square of the length is calculated using dot product, this function is avalaible at
      * compile time.
      */
     template <Numeric T, size S>
@@ -184,7 +184,7 @@ namespace euler
      * @param v Vector.
      * @return Normalized vector.
      * @note Returned vector will have the data type euler::to_floating_t<T>.
-     * @note Since normalizing involves calculating length of vector, function is not avaiable
+     * @note Since normalizing involves calculating length of vector, function is not avalaible
      * at compile time.
      * @warning v being null is not checked, and this case is not handled gracefully.
      */
@@ -206,7 +206,7 @@ namespace euler
      * @param fallback Fallback value for division, type is euler::to_floating_t<T>. Default value is 0.
      * @return normalized vector.
      * @note Returned vector will have the data type euler::to_floating_t<T>.
-     * @note Since normalizing involves calculating length of vector, function is not avaiable 
+     * @note Since normalizing involves calculating length of vector, function is not avalaible 
      * at compile time.
      */
     template <Numeric T, size S>
@@ -728,7 +728,7 @@ namespace euler
      * @tparam S Dimension of the vector.
      * @tparam Axis Axis from which angle is to be found.
      * @param v Vector.
-     * @return Angle the vector makes from the axis.
+     * @return Angle the vector makes from the axis in radians.
      * @note axis must be non-zero and less than S.
      * @note This is the compile time version of the function,
      * if axis is unknown at compile time use runtime version.
@@ -745,6 +745,16 @@ namespace euler
                 constants<to_floating_t<T>>::pi - angle_from_pve;
     }
 
+    /**
+     * @brief Gets the sum of vectors.
+     * Takes in a variadic amount of vectors and adds them all up.
+     * @tparam Vecs... Type of different vectors you want to add.
+     * @param vecs... All the different vectors you want to add.
+     * @return Resultant sum of the vectors.
+     * @note The returned vector will have data type as common type of data types of all input vectors.
+     * @warning Number of input vectors must be greater than 1.
+     * @warning All input vectors must have the same dimension.
+     */
     template <typename ...Vecs>
         requires(sizeof...(Vecs) > 1)
     constexpr inline auto add(const Vecs &...vecs)
@@ -761,7 +771,7 @@ namespace euler
         using type = 
             std::common_type_t<
                 typename
-                    std::remove_cvref_t<Vecs>::type...>;
+                    std::remove_cvref_t<Vecs>::data_type...>;
 
         vec<type, dim> result;
 
@@ -771,6 +781,16 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Gets the difference of vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Difference of both vectors.
+     * @note Returned vector will have data type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     constexpr inline auto sub(
             const vec<T1, S> &v1,
@@ -788,6 +808,16 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Gets the absolute difference of vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Absolute difference of both vectors.
+     * @note Returned vector will have data type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     constexpr inline auto diff(
             const vec<T1, S> &v1,
@@ -806,6 +836,16 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Gets the component wise product of the vectors.
+     * Takes in a variadic amount of vectors and multiplies them all to get the final vector.
+     * @tparam Vecs... Type of different vectors you want to multiply.
+     * @param vecs... All the different vectors you want to multiply.
+     * @return Resultant vector where components are calculated by multiplying all input vectors.
+     * @note The returned vector will have data type as common type of data types of all input vectors.
+     * @warning Number of input vectors must be greater than 1.
+     * @warning All input vectors must have the same dimension.
+     */
     template <typename ...Vecs>
         requires(sizeof...(Vecs) > 1)
     constexpr inline auto mult(const Vecs &...vecs)
@@ -822,7 +862,7 @@ namespace euler
 
         using type = 
             std::common_type_t<
-                typename std::remove_cvref_t<Vecs>::type...>;
+                typename std::remove_cvref_t<Vecs>::data_type...>;
 
         vec<type, dim> result;
 
@@ -833,11 +873,33 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Gets the cross product of two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Cross product of both vectors, (v1 X v2).
+     * @warning This function is marked delete, use only specialized functions for different 
+     * dimensions where cross product is valid.
+     */
     template <Numeric T1, Numeric T2, size S>
     auto cross(
             const vec<T1, S> &v1,
             const vec<T2, S> &v2) -> vec<std::common_type_t<T1, T2>,  S> = delete;
 
+    /**
+     * @brief Gets the distance between two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Distance between both the vectors.
+     * @note The returned type is the floating point version of common type of T1, T2.
+     * @note Since distance involes taking a square root, this function is not  at compile time.
+     */
     template <typename T1, typename T2, size S>
     inline auto distance(
             const vec<T1, S> &v1,
@@ -853,6 +915,17 @@ namespace euler
         return std::sqrt(result);
     }
 
+    /**
+     * @brief Gets the square of distance between two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Square of distance between both the vectors.
+     * @note The returned type is the floating point version of common type of T1, T2.
+     * @note This version of distance is avalaible at compile time.
+     */
     template <typename T1, typename T2, size S>
     constexpr inline auto distance_sq(
             const vec<T1, S> &v1,
@@ -868,6 +941,16 @@ namespace euler
         return result;
     }   
 
+    /**
+     * @brief Gets the cosine of angle between two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @return Cosine of angle between the two vectors.
+     * @note Returned type is the floating point version of the larger type between T1 and T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     inline auto cos_angle_bw(
             const vec<T1, S> &v1,
@@ -883,14 +966,32 @@ namespace euler
                     static_cast<type>(length(v2)));
     }
 
+    /**
+     * @brief Gets the angle between two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @return Angle between both the vectors in radians.
+     * @note Returned type is the floating point version of larger type between T1 and T2.
+     */
     template <Numeric T1, Numeric T2, size S>
-    inline to_floating_t<larger_t<T1, T2>> angle_bw(
+    inline auto angle_bw(
             const vec<T1, S> &v1,
-            const vec<T2, S> &v2)
+            const vec<T2, S> &v2) -> to_floating_t<larger_t<T1, T2>>
     {
         return std::acos(cos_angle_bw(v1, v2));
     }
 
+    /**
+     * @brief Checks if given vectors are equal.
+     * @tparam First First vector type.
+     * @tparam Rest... Rest of the vector types.
+     * @param first First vector.
+     * @param rest... Rest of the vectors.
+     * @return If all given vectors are equal.
+     * @note Number of vector inputs in Rest must be greater than zero.
+     * @note All values are converted to common type of data types of all vectors and then compared.
+     */
     template <typename First, typename ...Rest> // TODO: Add vector concept
         requires(sizeof...(Rest) > 0)
     constexpr inline bool equal(const First &first, const Rest &...rest)
@@ -903,8 +1004,8 @@ namespace euler
 
         using type = 
             std::common_type_t<
-                typename std::remove_cvref_t<First>::type,
-                typename std::remove_cvref_t<Rest>::type...>;
+                typename std::remove_cvref_t<First>::data_type,
+                typename std::remove_cvref_t<Rest>::data_type...>;
 
         for (size i = 0; i < dim; ++i)
         {
@@ -921,6 +1022,16 @@ namespace euler
         return true;
     }
 
+    /**
+     * @brief Epsilon equal.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @param v1 First vector.
+     * @param v2 Second vector.
+     * @param eps Epsilon value, type is common type of T1, T2. By default set to constants::epsilon.
+     * @return Are vectors equal in given epsilon value.
+     */
     template <Numeric T1, Numeric T2, size S>
     constexpr inline bool equal_epsilon(
             const vec<T1, S> &v1,
@@ -941,6 +1052,15 @@ namespace euler
         return true;
     }
 
+    /**
+     * @brief Gets the projection of one vector over another.
+     * @tparam T1 Data type of the vector you want to project.
+     * @tparam T2 Data type of the vector you want to project on.
+     * @param of Vector you want to project.
+     * @param on Vector you want to project on.
+     * @return Projected vector.
+     * @note Returned vector has data type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     inline auto project(const vec<T1, S> &of, const vec<T2, S> &on)
         -> vec<std::common_type_t<T1, T2>, S>
@@ -954,6 +1074,15 @@ namespace euler
         return scale(on, multiplier);
     }
 
+    /**
+     * @brief Gets the length of projection of one vector over another.
+     * @tparam T1 Data type of the vector you want to project.
+     * @tparam T2 Data type of the vector you want to project on.
+     * @param of Vector you want to project.
+     * @param on Vector you want to project on.
+     * @return Length of projected vector.
+     * @note Returned value has type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     inline auto project_length(
             const vec<T1, S> &of,
@@ -962,6 +1091,16 @@ namespace euler
         return length(project(of, on));
     }
 
+    /**
+     * @brief Gets the rejection vector of one vector over another.
+     * Rejection Fector of Of vector on On vector = Of vector - Projection of Of vector on On vector.
+     * @tparam T1 Data type of the vector you want to reject.
+     * @tparam T2 Data type of the vector you want to reject on.
+     * @param of Vector you want to reject.
+     * @param on Vector you want to reject on.
+     * @return Rejected vector.
+     * @note Returned vector will have the data type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     inline auto reject(const vec<T1, S> &of, const vec<T2, S> &on)
         -> vec<std::common_type_t<T1, T2>, S>
@@ -969,6 +1108,16 @@ namespace euler
         return sub(of, project(of, on));
     }
 
+    /**
+     * @brief Gets the length of rejection of one vector over another.
+     * Rejection Fector of Of vector on On vector = Of vector - Projection of Of vector on On vector.
+     * @tparam T1 Data type of the vector you want to reject.
+     * @tparam T2 Data type of the vector you want to reject on.
+     * @param of Vector you want to reject.
+     * @param on Vector you want to reject on.
+     * @return Length of rejected vector.
+     * @note Returned value has type as common type of T1, T2.
+     */
     template <Numeric T1, Numeric T2, size S>
     inline auto reject_length(
             const vec<T1, S> &of, 
@@ -977,7 +1126,20 @@ namespace euler
         return length(reject(of, on));
     }
 
-    template <Numeric T1, Numeric T2, Floating T, size S>
+    /**
+     * @brief Gets the linear interpolation of two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @tparam T Data type of interpolation parameter.
+     * @param v1 First limit vector.
+     * @param v2 Second limit vector.
+     * @param t Interpolation parameter, must be from 0 to 1.
+     * @return Interpolated vector.
+     * @note Returned vector will have the data type as common type of T1, T2, T.
+     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
+     */
+    template <Numeric T1, Numeric T2, size S, Floating T>
     constexpr inline auto lerp(
             const vec<T1, S> &v1,
             const vec<T2, S> &v2,
@@ -998,7 +1160,20 @@ namespace euler
         return result;
     }
 
-    template <Numeric T1, Numeric T2, Floating T, size S>
+    /**
+     * @brief Gets the nomralized linear interpolation of two vectors.
+     * @tparam T1 Data type of the first vector.
+     * @tparam T2 Data type of the second vector.
+     * @tparam S Dimension of both the vectors.
+     * @tparam T Data type of interpolation parameter.
+     * @param v1 First limit vector.
+     * @param v2 Second limit vector.
+     * @param t Interpolation parameter, must be from 0 to 1.
+     * @return Normalized interpolated vector.
+     * @note Returned vector will have the data type as floating point version of common type of T1, T2, T.
+     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
+     */
+    template <Numeric T1, Numeric T2, size S, Floating T>
     inline auto nlerp(
             const vec<T1, S> &v1,
             const vec<T2, S> &v2,
@@ -1007,6 +1182,15 @@ namespace euler
         return normalize(lerp(v1, v2, t));
     }
 
+    /**
+     * @brief Gets the component wise maximized vector.
+     * Each component is the max value from all corresponding vector values of the same component.
+     * @tparam Vecs... Types of all input vectors.
+     * @param vecs... All input vectors.
+     * @return Component wise maximized vector of all input vectors.
+     * @note Number of input vecs given must be greater than 1.
+     * @note Return vector will have the data type as common type of data types of input vectors.
+     */
     template <typename ...Vecs>
         requires(sizeof...(Vecs) > 1)
     constexpr inline auto max(const Vecs &...vecs)
@@ -1022,7 +1206,7 @@ namespace euler
 
         using type =
             std::common_type_t<
-                typename std::remove_cvref_t<Vecs>::type...>;
+                typename std::remove_cvref_t<Vecs>::data_type...>;
 
         vec<type, dim> result;
 
@@ -1032,6 +1216,15 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Gets the component wise minimized vector.
+     * Each component is the min value from all corresponding vector values of the same component.
+     * @tparam Vecs... Types of all input vectors.
+     * @param vecs... All input vectors.
+     * @return Component wise minimized vector of all input vectors.
+     * @note Number of input vecs given must be greater than 1.
+     * @note Return vector will have the data type as common type of data types of input vectors.
+     */
     template <typename ...Vecs>
         requires(sizeof...(Vecs) > 1)
     constexpr inline auto min(const Vecs &...vecs)
@@ -1057,7 +1250,19 @@ namespace euler
         return result;
     }
 
-    template <Numeric T, Numeric Min, Numeric Max, size S>
+    /**
+     * @brief Clamps components of the given vector.
+     * @tparam T Data type of the vector.
+     * @tparam S Dimension of the vector.
+     * @tparam Min Data type of minimum value.
+     * @tparam Max Data type of maximum value.
+     * @param v Vector.
+     * @param min Minimum value.
+     * @param max Maximum value.
+     * @return Vector with all components clamped as per given limits.
+     * @note Returned vector will have data type as common type of T, Min, Max.
+     */
+    template <Numeric T, size S, Numeric Min, Numeric Max>
     constexpr inline auto clamp(
             const vec<T, S> &v,
             Min min,
@@ -1073,6 +1278,15 @@ namespace euler
         return result;
     }
 
+    /**
+     * @brief Casts the given vector into vector of another data type.
+     * @tparam T Initial data type of the vector.
+     * @tparam S Dimension of the vector.
+     * @tparam M Data type to be casted as.
+     * @param v Vector.
+     * @return Vector with casted data type.
+     * @note static_cast is used for casting.
+     */
     template <Numeric T, size S, Numeric M>
     constexpr inline vec<M, S> cast(const vec<T, S> &v)
     {
@@ -1086,6 +1300,17 @@ namespace euler
     
 }
 
+/**
+ * @brief Adds two vectors.
+ * @tparam T1 Data type of the first vector.
+ * @tparam T2 Data type of the second vector.
+ * @tparam S Dimension of both the vectors.
+ * @param v1 First vector.
+ * @param v2 Second vector.
+ * @return Resultant sum of both the vectors.
+ * @note Returned vector has data type as common type of T1, T2.
+ * @note Aliases euler::add.
+ */
 template <euler::Numeric T1, euler::Numeric T2, euler::size S>
 constexpr inline auto operator+(
         const euler::vec<T1, S> &v1,
@@ -1094,6 +1319,17 @@ constexpr inline auto operator+(
     return euler::add(v1, v2);
 }
 
+/**
+ * @brief Subtracts two vectors.
+ * @tparam T1 Data type of the first vector.
+ * @tparam T2 Data type of the second vector.
+ * @tparam S Dimension of both the vectors.
+ * @param v1 First vector.
+ * @param v2 Second vector.
+ * @return Difference of both the vectors.
+ * @note Returned vector has data type as common type of T1, T2.
+ * @note Aliases euler::sub.
+ */
 template <euler::Numeric T1, euler::Numeric T2, euler::size S>
 constexpr inline auto operator-(
         const euler::vec<T1, S> &v1,
@@ -1102,6 +1338,17 @@ constexpr inline auto operator-(
     return euler::sub(v1, v2);
 }
 
+/**
+ * @brief Multiplies two vectors.
+ * @tparam T1 Data type of the first vector.
+ * @tparam T2 Data type of the second vector.
+ * @tparam S Dimension of both the vectors.
+ * @param v1 First vector.
+ * @param v2 Second vector.
+ * @return Resultant product both the vectors.
+ * @note Returned vector has data type as common type of T1, T2.
+ * @note Aliases euler::mult.
+ */
 template <euler::Numeric T1, euler::Numeric T2, euler::size S>
 constexpr inline auto operator*(
         const euler::vec<T1, S> &v1,
@@ -1110,6 +1357,16 @@ constexpr inline auto operator*(
     return euler::mult(v1, v2);
 }
 
+/**
+ * @brief Checks if two vectors are equal.
+ * @tparam T1 Data type of the first vector.
+ * @tparam T2 Data type of the second vector.
+ * @tparam S Dimension of both the vectors.
+ * @param v1 First vector.
+ * @param v2 Second vector.
+ * @return If the two vectors are equal.
+ * @note Aliases euler::equal.
+ */
 template <euler::Numeric T1, euler::Numeric T2, euler::size S>
 constexpr inline bool operator==(
         const euler::vec<T1, S> &v1,
@@ -1118,6 +1375,16 @@ constexpr inline bool operator==(
     return euler::equal(v1, v2);
 }
 
+/**
+ * @brief Checks if two vectors are unequal.
+ * @tparam T1 Data type of the first vector.
+ * @tparam T2 Data type of the second vector.
+ * @tparam S Dimension of both the vectors.
+ * @param v1 First vector.
+ * @param v2 Second vector.
+ * @return If the two vectors are unequal.
+ * @note Uses euler::equal.
+ */
 template <euler::Numeric T1, euler::Numeric T2, euler::size S>
 constexpr inline bool operator!=(
         const euler::vec<T1, S> &v1,
@@ -1126,6 +1393,16 @@ constexpr inline bool operator!=(
     return !euler::equal(v1, v2);
 }
 
+/**
+ * @brief Checks if vector is component-wise greater than a scalar.
+ * @tparam T Data type of the vector.
+ * @tparam S Dimension of the vector.
+ * @tparam M Data type of the scalar.
+ * @param v Vector.
+ * @param m Scalar.
+ * @return If the vector is component wise greater than the scalar.
+ * @note Aliases euler::comp_wise_gt.
+ */
 template <euler::Numeric T, euler::size S, euler::Numeric M>
 constexpr inline bool operator>>(
         const euler::vec<T, S> &v,
@@ -1134,6 +1411,16 @@ constexpr inline bool operator>>(
     return euler::comp_wise_gt(v, m);
 }
 
+/**
+ * @brief Checks if vector is component-wise greater than or equal to a scalar.
+ * @tparam T Data type of the vector.
+ * @tparam S Dimension of the vector.
+ * @tparam M Data type of the scalar.
+ * @param v Vector.
+ * @param m Scalar.
+ * @return If the vector is component wise greater than or equal to the scalar.
+ * @note Aliases euler::comp_wise_gte.
+ */
 template <euler::Numeric T, euler::size S, euler::Numeric M>
 constexpr inline bool operator>=(
         const euler::vec<T, S> &v,
@@ -1142,6 +1429,16 @@ constexpr inline bool operator>=(
     return euler::comp_wise_gte(v, m);
 }
 
+/**
+ * @brief Checks if vector is component-wise less than a scalar.
+ * @tparam T Data type of the vector.
+ * @tparam S Dimension of the vector.
+ * @tparam M Data type of the scalar.
+ * @param v Vector.
+ * @param m Scalar.
+ * @return If the vector is component wise less than the scalar.
+ * @note Aliases euler::comp_wise_lt.
+ */
 template <euler::Numeric T, euler::size S, euler::Numeric M>
 constexpr inline bool operator<<(
         const euler::vec<T, S> &v,
@@ -1150,6 +1447,16 @@ constexpr inline bool operator<<(
     return euler::comp_wise_lte(v, m);
 }
 
+/**
+ * @brief Checks if vector is component-wise less than or equal to a scalar.
+ * @tparam T Data type of the vector.
+ * @tparam S Dimension of the vector.
+ * @tparam M Data type of the scalar.
+ * @param v Vector.
+ * @param m Scalar.
+ * @return If the vector is component wise less than or equal to the scalar.
+ * @note Aliases euler::comp_wise_lte.
+ */
 template <euler::Numeric T, euler::size S, euler::Numeric M>
 constexpr inline bool operator<=(
         const euler::vec<T, S> &v,
@@ -1158,6 +1465,16 @@ constexpr inline bool operator<=(
     return euler::comp_wise_lte(v, m);
 }
 
+/**
+ * @brief Checks if vector is component-wise equal to a scalar.
+ * @tparam T Data type of the vector.
+ * @tparam S Dimension of the vector.
+ * @tparam M Data type of the scalar.
+ * @param v Vector.
+ * @param m Scalar.
+ * @return If the vector is component wise equal to the scalar.
+ * @note ALiases euler::comp_wise_eq.
+ */
 template <euler::Numeric T, euler::size S, euler::Numeric M>
 constexpr inline bool operator==(
         const euler::vec<T, S> &v,

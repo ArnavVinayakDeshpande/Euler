@@ -410,8 +410,9 @@ namespace euler
      * @tparam T Type of input.
      * @param x Value of first limit.
      * @param y Value of second limit.
-     * @param t Interpolation parameter.
+     * @param t Interpolation parameter, must be from 0 to 1.
      * @return Linearly interpolated value.
+     * @warning t is not checked and not clamped, t must be from 0 to 1 to avoid UB.
      */
     template <Floating T>
     constexpr inline T lerp(T x, T y, T t) noexcept

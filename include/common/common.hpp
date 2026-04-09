@@ -458,4 +458,19 @@ namespace euler
         return rad * (constants<T>::rad_to_deg);
     }
 
+    /**
+     * @brief Swaps given values.
+     * @tparam T Type of the  input.
+     * @param x Reference to first variable.
+     * @param y Reference to second varialbe.
+     * @return void
+     */
+    template <Numeric T>
+    constexpr inline void swap(T &x, T &y)
+    {
+        x = x + y;
+        y = x - y;
+        x = x - y;
+    }
+
 }
